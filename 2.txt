@@ -1,10 +1,19 @@
 __Alchemy = {
-    DamageAura = true,
-    DistantceAura = 80
+    DamageAura = true,   -- Bật/tắt chế độ tự động đánh
+    DistantceAura = 80   -- Phạm vi đánh (80 đơn vị)
 }
+
+-- Hiển thị thông báo khi tool chạy
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Script Loaded",
+    Text = "Damage Aura đã được kích hoạt!",
+    Duration = 5
+})
+
 local hitMob = function(a)
     game:GetService'VirtualUser':CaptureController()
     game:GetService'VirtualUser':Button1Down(Vector2.new(0,1,0,1))
+
     local args = {
         [1] = 5,
         [2] = {
@@ -13,6 +22,7 @@ local hitMob = function(a)
     }
     game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Server"):WaitForChild("Combat"):WaitForChild("M1"):FireServer(unpack(args))
 end
+
 game:GetService("RunService").RenderStepped:Connect(function()
     if __Alchemy.DamageAura then
         for i, v in pairs(workspace.Objects.Mobs:GetChildren()) do  
