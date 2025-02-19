@@ -1,53 +1,34 @@
-(getgenv()).Config = {
-    ["FastAttack"] = true,
-    ["ClickAttack"] = true
-} 
+-- Settings --
+getgenv().ChestFarm = true;
 
--- Hiển thị thông báo khi tool chạy
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Script Loaded",
-    Text = "Fast Attack & Auto Click đã được kích hoạt!",
-    Duration = 5
-})
-
-coroutine.wrap(function()
-    local StopCamera = require(game.ReplicatedStorage.Util.CameraShaker)
-    StopCamera:Stop()
-    
-    for v, v in pairs(getreg()) do
-        if typeof(v) == "function" and getfenv(v).script == game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework then
-            for v, v in pairs(debug.getupvalues(v)) do
-                if typeof(v) == "table" then
-                    spawn(function()
-                        game:GetService("RunService").RenderStepped:Connect(function()
-                            if getgenv().Config['FastAttack'] then
-                                pcall(function()
-                                    v.activeController.timeToNextAttack = -(math.huge^math.huge^math.huge)
-                                    v.activeController.attacking = false
-                                    v.activeController.increment = 4
-                                    v.activeController.blocking = false   
-                                    v.activeController.hitboxMagnitude = 150
-                                    v.activeController.humanoid.AutoRotate = true
-                                    v.activeController.focusStart = 0
-                                    v.activeController.currentAttackTrack = 0
-                                    sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRaxNerous", math.huge)
-                                end)
-                            end
-                        end)
-                    end)
-                end
-            end
-        end
+-- Chest Farm --
+spawn(function()
+while task.wait(.7) do
+if getgenv().ChestFarm then
+pcall(function()
+            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+               if v.Name:find("Chest") and v.ClassName == "Part" then
+               local Distance2 = (v.CFrame.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+               if Distance2 < 999 then
+                   Speed2 = 100000
+                  elseif Distance2 < 1000 then
+                   Speed2 = 600
+                   elseif Distance2 >= 1000 then
+                       Speed2 = 300
+                   end
+               local tween_s = game:service"TweenService"
+               local info = TweenInfo.new(Distance2/Speed2, Enum.EasingStyle.Linear)
+                   local tween = tween_s:Create(game:GetService("Players").LocalPlayer.Character["HumanoidRootPart"], info, {CFrame = v.CFrame * CFrame.new(0,0,1)})
+                   tween:Play()
+                   wait(Distance2/Speed2)
+                   wait(1.1)
+               end
+           end
+          end)
+      end
     end
-end)();
+end)
 
 spawn(function()
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if getgenv().Config['ClickAttack'] then
-            pcall(function()
-                game:GetService'VirtualUser':CaptureController()
-                game:GetService'VirtualUser':Button1Down(Vector2.new(0,1,0,1))
-            end)
-        end
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/L1ZOT/Blox-Fruit/main/Chest-Farm"))()
     end)
-end)
