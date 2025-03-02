@@ -1,73 +1,71 @@
 local TweenService = game:GetService("TweenService")
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local npcsFolder = game.Workspace:FindFirstChild("NPCs") -- Tìm thư mục NPCs
 
--- Chờ nhân vật xuất hiện
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
--- 🟢 Tắt va chạm để nhân vật xuyên vật thể
-for _, part in pairs(character:GetChildren()) do
-    if part:IsA("BasePart") then
-        part.CanCollide = false
-    end
+if not npcsFolder then
+    warn("Không tìm thấy thư mục NPCs!")
+    return
 end
 
--- 🖥️ Tạo GUI nhập tọa độ
+-- 🖥️ Tạo GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = playerGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 200)
-frame.Position = UDim2.new(0.5, -125, 0.5, -100)
+frame.Size = UDim2.new(0, 250, 0, 300)
+frame.Position = UDim2.new(0.5, -125, 0.5, -150)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.Parent = screenGui
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "Nhập Tọa Độ"
+title.Text = "Chọn NPC để dịch chuyển"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 title.Parent = frame
 
-local textBoxX = Instance.new("TextBox")
-textBoxX.Size = UDim2.new(1, -20, 0, 30)
-textBoxX.Position = UDim2.new(0, 10, 0, 40)
-textBoxX.PlaceholderText = "Nhập X"
-textBoxX.Parent = frame
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, 0, 1, -30)
+scrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+scrollingFrame.Parent = frame
 
-local textBoxY = textBoxX:Clone()
-textBoxY.Position = UDim2.new(0, 10, 0, 80)
-textBoxY.PlaceholderText = "Nhập Y"
-textBoxY.Parent = frame
-
-local textBoxZ = textBoxX:Clone()
-textBoxZ.Position = UDim2.new(0, 10, 0, 120)
-textBoxZ.PlaceholderText = "Nhập Z"
-textBoxZ.Parent = frame
-
-local teleportButton = Instance.new("TextButton")
-teleportButton.Size = UDim2.new(1, -20, 0, 30)
-teleportButton.Position = UDim2.new(0, 10, 0, 160)
-teleportButton.Text = "Di chuyển"
-teleportButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-teleportButton.TextColor3 = Color3.new(1, 1, 1)
-teleportButton.Parent = frame
-
--- 🚀 Hàm di chuyển nhân vật
-local function moveCharacter(x, y, z)
-    local targetPosition = Vector3.new(x, y, z)
-    local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-    local goal = {CFrame = CFrame.new(targetPosition)}
-
-    local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
-    tween:Play()
+-- 🚀 Hàm dịch chuyển nhân vật
+local function moveCharacter(targetPosition)
+    local character = player.Character
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out) -- 2 giây
+            local goal = {CFrame = CFrame.new(targetPosition)}
+            local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
+            tween:Play()
+        end
+    end
 end
 
--- ⏩ Khi bấm nút, di chuyển nhân vật
-teleportButton.MouseButton1Click:Connect(function()
-    local x = tonumber(textBoxX.Text) or 0
-    local y = tonumber(textBoxY.Text) or 0
-    local z = tonumber(textBoxZ.Text) or 0
-    moveCharacter(x, y, z)
-end)
+-- 📝 Tạo danh sách NPC
+local yPosition = 0
+for _, npc in pairs(npcsFolder:GetChildren()) do
+    local rootPart = npc:FindFirstChild("HumanoidRootPart")
+    if rootPart then
+        local npcButton = Instance.new("TextButton")
+        npcButton.Size = UDim2.new(1, -10, 0, 40)
+        npcButton.Position = UDim2.new(0, 5, 0, yPosition)
+        npcButton.Text = "Dịch chuyển đến: " .. npc.Name
+        npcButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        npcButton.TextColor3 = Color3.new(1, 1, 1)
+        npcButton.Parent = scrollingFrame
+
+        -- Khi bấm nút, di chuyển đến NPC
+        npcButton.MouseButton1Click:Connect(function()
+            moveCharacter(rootPart.Position)
+        end)
+
+        yPosition = yPosition + 45
+    end
+end
+
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yPosition)
