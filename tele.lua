@@ -65,7 +65,7 @@ local function moveCharacter(targetPosition)
     if character then
         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
-            local speed = tonumber(speedInput.Text) or 2 -- Nếu nhập sai, mặc định 2 giây
+            local speed = tonumber(speedInput.Text) or 60 -- Nếu nhập sai, mặc định 2 giây
             local tweenInfo = TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
             local goal = {CFrame = CFrame.new(targetPosition)}
             local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
