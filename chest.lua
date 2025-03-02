@@ -10,7 +10,7 @@ if not chestsFolder then
     return
 end
 
--- 🖥️ Tạo GUI hiển thị số rương
+-- 🖥️ Tạo GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
@@ -22,7 +22,7 @@ chestCounter.TextColor3 = Color3.new(1, 1, 1)
 chestCounter.TextSize = 24
 chestCounter.Parent = screenGui
 
--- 🎛️ Tạo nút bật/tắt
+-- 🎛️ Nút bật/tắt dịch chuyển
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 150, 0, 50)
 toggleButton.Position = UDim2.new(0.5, -75, 0.2, 0)
@@ -32,43 +32,54 @@ toggleButton.TextSize = 24
 toggleButton.Text = "Bật dịch chuyển"
 toggleButton.Parent = screenGui
 
-local isMoving = false -- Biến kiểm soát trạng thái bật/tắt
+local isMoving = false -- Trạng thái dịch chuyển
 
--- 🔄 Cập nhật số rương
-local function updateChestCount(count)
+-- 🔄 Cập nhật số rương còn lại
+local function updateChestCount()
+    local count = #chestsFolder:GetChildren()
     chestCounter.Text = "Rương còn lại: " .. count
 end
 
--- 🏃 Hàm di chuyển đến 1 vị trí
-local function moveToPosition(targetPosition, speed)
-    local tweenInfo = TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-    local goal = {CFrame = CFrame.new(targetPosition)}
-    local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
-    tween:Play()
-    tween.Completed:Wait() -- Đợi di chuyển xong
+-- 🏃 Hàm dịch chuyển đến Part
+local function moveToPosition(targetPart, speed)
+    if humanoidRootPart and targetPart then
+        local tweenInfo = TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+        local goal = {CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)} -- Dịch lên 3 đơn vị để tránh kẹt
+        local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
+        tween:Play()
+        tween.Completed:Wait() -- Đợi di chuyển xong
+    end
 end
 
--- 🚀 Hàm tự động di chuyển qua từng rương
+-- 🚀 Tự động dịch chuyển đến các rương
 local function autoMoveToChests()
-    if not isMoving then return end -- Nếu tắt thì dừng
-    
-    local chests = chestsFolder:GetChildren()
-    updateChestCount(#chests) -- Hiển thị số rương ban đầu
+    while isMoving do
+        local chests = chestsFolder:GetChildren()
+        updateChestCount()
+        
+        if #chests == 0 then
+            toggleButton.Text = "Hết rương!"
+            isMoving = false
+            return
+        end
 
-    for _, chest in ipairs(chests) do
-        if not isMoving then return end -- Nếu bị tắt giữa chừng thì dừng ngay
-        local chestRoot = chest:FindFirstChild("HumanoidRootPart") or chest:FindFirstChild("PrimaryPart")
-        if chestRoot then
-            moveToPosition(chestRoot.Position, 3) -- Di chuyển với tốc độ 3 giây
-            chest:Destroy() -- Xóa rương khi đến nơi
-            updateChestCount(#chestsFolder:GetChildren()) -- Cập nhật số rương
+        for _, chest in ipairs(chests) do
+            if not isMoving then return end -- Nếu tắt giữa chừng, dừng ngay
+
+            -- Tìm Part trong rương để dịch chuyển đến
+            local targetPart = chest:FindFirstChild("HumanoidRootPart") or chest:FindFirstChildWhichIsA("BasePart")
+            if targetPart then
+                moveToPosition(targetPart, 2) -- Dịch chuyển với tốc độ 2 giây
+                chest:Destroy() -- Xóa rương khi đến nơi
+                updateChestCount()
+            end
         end
     end
 end
 
 -- 🎛️ Xử lý khi bấm nút bật/tắt
 toggleButton.MouseButton1Click:Connect(function()
-    isMoving = not isMoving -- Đảo trạng thái
+    isMoving = not isMoving
     toggleButton.Text = isMoving and "Tắt dịch chuyển" or "Bật dịch chuyển"
 
     if isMoving then
@@ -76,5 +87,5 @@ toggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- 🔥 Cập nhật số rương ban đầu
-updateChestCount(#chestsFolder:GetChildren())
+-- 🔥 Hiển thị số rương ban đầu
+updateChestCount()
