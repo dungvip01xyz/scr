@@ -1,7 +1,7 @@
 local TweenService = game:GetService("TweenService")
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local npcsFolder = game.Workspace:FindFirstChild("NPCs") -- Tìm thư mục NPCs
+local npcsFolder = game.Workspace:FindFirstChild("NPCs")
 
 if not npcsFolder then
     warn("Không tìm thấy thư mục NPCs!")
@@ -12,10 +12,21 @@ end
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = playerGui
 
+-- 🛠️ Nút bật/tắt menu
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 100, 0, 40)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.Text = "Menu"
+toggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.Parent = screenGui
+
+-- 📌 Khung menu
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 250, 0, 350)
 frame.Position = UDim2.new(0.5, -125, 0.5, -175)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Visible = false -- Mặc định ẩn
 frame.Parent = screenGui
 
 local title = Instance.new("TextLabel")
@@ -32,7 +43,7 @@ scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 scrollingFrame.Parent = frame
 
--- 🛠️ Tạo ô nhập tốc độ
+-- 🛠️ Ô nhập tốc độ
 local speedLabel = Instance.new("TextLabel")
 speedLabel.Size = UDim2.new(1, 0, 0, 25)
 speedLabel.Position = UDim2.new(0, 0, 1, -50)
@@ -44,15 +55,17 @@ local speedInput = Instance.new("TextBox")
 speedInput.Size = UDim2.new(1, -20, 0, 25)
 speedInput.Position = UDim2.new(0, 10, 1, -25)
 speedInput.Text = "2"
+speedInput.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+speedInput.TextColor3 = Color3.new(1, 1, 1)
 speedInput.Parent = frame
 
--- 🚀 Hàm dịch chuyển nhân vật với tốc độ tùy chỉnh
+-- 🚀 Hàm dịch chuyển nhân vật
 local function moveCharacter(targetPosition)
     local character = player.Character
     if character then
         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
         if humanoidRootPart then
-            local speed = tonumber(speedInput.Text) or 2 -- Nếu nhập sai, mặc định là 2 giây
+            local speed = tonumber(speedInput.Text) or 2 -- Nếu nhập sai, mặc định 2 giây
             local tweenInfo = TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
             local goal = {CFrame = CFrame.new(targetPosition)}
             local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
@@ -74,7 +87,7 @@ for _, npc in pairs(npcsFolder:GetChildren()) do
         npcButton.TextColor3 = Color3.new(1, 1, 1)
         npcButton.Parent = scrollingFrame
 
-        -- Khi bấm nút, di chuyển đến NPC với tốc độ từ ô nhập
+        -- Khi bấm nút, di chuyển đến NPC với tốc độ nhập vào
         npcButton.MouseButton1Click:Connect(function()
             moveCharacter(rootPart.Position)
         end)
@@ -84,3 +97,8 @@ for _, npc in pairs(npcsFolder:GetChildren()) do
 end
 
 scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+
+-- 🔄 Toggle menu khi bấm nút
+toggleButton.MouseButton1Click:Connect(function()
+    frame.Visible = not frame.Visible
+end)
