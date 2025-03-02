@@ -1,71 +1,61 @@
 local TweenService = game:GetService("TweenService")
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local npcsFolder = game.Workspace:FindFirstChild("NPCs") -- Tìm thư mục NPCs
 
-if not npcsFolder then
-    warn("Không tìm thấy thư mục NPCs!")
-    return
-end
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 -- 🖥️ Tạo GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = playerGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 300)
-frame.Position = UDim2.new(0.5, -125, 0.5, -150)
+frame.Size = UDim2.new(0, 250, 0, 150)
+frame.Position = UDim2.new(0.5, -125, 0.5, -75)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.Parent = screenGui
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "Chọn NPC để dịch chuyển"
+title.Text = "Chỉnh tốc độ di chuyển"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 title.Parent = frame
 
-local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(1, 0, 1, -30)
-scrollingFrame.Position = UDim2.new(0, 0, 0, 30)
-scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-scrollingFrame.Parent = frame
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(1, 0, 0, 30)
+speedLabel.Position = UDim2.new(0, 0, 0, 30)
+speedLabel.Text = "Tốc độ: 2 giây"
+speedLabel.TextColor3 = Color3.new(1, 1, 1)
+speedLabel.Parent = frame
 
--- 🚀 Hàm dịch chuyển nhân vật
-local function moveCharacter(targetPosition)
-    local character = player.Character
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out) -- 2 giây
-            local goal = {CFrame = CFrame.new(targetPosition)}
-            local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
-            tween:Play()
-        end
-    end
+local speedSlider = Instance.new("TextBox")
+speedSlider.Size = UDim2.new(1, -20, 0, 30)
+speedSlider.Position = UDim2.new(0, 10, 0, 70)
+speedSlider.Text = "2"
+speedSlider.Parent = frame
+
+local moveButton = Instance.new("TextButton")
+moveButton.Size = UDim2.new(1, -20, 0, 30)
+moveButton.Position = UDim2.new(0, 10, 0, 110)
+moveButton.Text = "Di chuyển đến (100, 5, 50)"
+moveButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+moveButton.TextColor3 = Color3.new(1, 1, 1)
+moveButton.Parent = frame
+
+-- 🚀 Hàm di chuyển nhân vật
+local function moveCharacter(x, y, z, speed)
+    local targetPosition = Vector3.new(x, y, z)
+    local tweenInfo = TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+    local goal = {CFrame = CFrame.new(targetPosition)}
+
+    local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
+    tween:Play()
 end
 
--- 📝 Tạo danh sách NPC
-local yPosition = 0
-for _, npc in pairs(npcsFolder:GetChildren()) do
-    local rootPart = npc:FindFirstChild("HumanoidRootPart")
-    if rootPart then
-        local npcButton = Instance.new("TextButton")
-        npcButton.Size = UDim2.new(1, -10, 0, 40)
-        npcButton.Position = UDim2.new(0, 5, 0, yPosition)
-        npcButton.Text = "Dịch chuyển đến: " .. npc.Name
-        npcButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        npcButton.TextColor3 = Color3.new(1, 1, 1)
-        npcButton.Parent = scrollingFrame
-
-        -- Khi bấm nút, di chuyển đến NPC
-        npcButton.MouseButton1Click:Connect(function()
-            moveCharacter(rootPart.Position)
-        end)
-
-        yPosition = yPosition + 45
-    end
-end
-
-scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+-- Khi bấm nút, lấy tốc độ từ Slider và di chuyển
+moveButton.MouseButton1Click:Connect(function()
+    local speed = tonumber(speedSlider.Text) or 2 -- Mặc định 2 giây
+    moveCharacter(100, 5, 50, speed)
+    speedLabel.Text = "Tốc độ: " .. speed .. " giây"
+end)
