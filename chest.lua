@@ -14,6 +14,7 @@ end
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
+-- Hiển thị số rương
 local chestCounter = Instance.new("TextLabel")
 chestCounter.Size = UDim2.new(0, 200, 0, 50)
 chestCounter.Position = UDim2.new(0.5, -100, 0.1, 0)
@@ -22,7 +23,7 @@ chestCounter.TextColor3 = Color3.new(1, 1, 1)
 chestCounter.TextSize = 24
 chestCounter.Parent = screenGui
 
--- 🎛️ Nút bật/tắt dịch chuyển
+-- Nút bật/tắt dịch chuyển
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 150, 0, 50)
 toggleButton.Position = UDim2.new(0.5, -75, 0.2, 0)
@@ -32,7 +33,28 @@ toggleButton.TextSize = 24
 toggleButton.Text = "Bật dịch chuyển"
 toggleButton.Parent = screenGui
 
-local isMoving = false -- Trạng thái dịch chuyển
+-- Ô nhập tốc độ
+local speedInput = Instance.new("TextBox")
+speedInput.Size = UDim2.new(0, 100, 0, 40)
+speedInput.Position = UDim2.new(0.5, -50, 0.3, 0)
+speedInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+speedInput.TextColor3 = Color3.new(1, 1, 1)
+speedInput.TextSize = 20
+speedInput.Text = "10" -- Mặc định 10 m/s
+speedInput.Parent = screenGui
+
+-- Nút đổi đơn vị tốc độ
+local unitButton = Instance.new("TextButton")
+unitButton.Size = UDim2.new(0, 100, 0, 40)
+unitButton.Position = UDim2.new(0.5, -50, 0.4, 0)
+unitButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+unitButton.TextColor3 = Color3.new(1, 1, 1)
+unitButton.TextSize = 20
+unitButton.Text = "Đơn vị: m/s"
+unitButton.Parent = screenGui
+
+local isMoving = false
+local isKmPerSecond = false -- Mặc định là m/s
 
 -- 🔄 Cập nhật số rương còn lại
 local function updateChestCount()
@@ -40,10 +62,13 @@ local function updateChestCount()
     chestCounter.Text = "Rương còn lại: " .. count
 end
 
--- 🏃 Hàm dịch chuyển đến Part
+-- 🏃 Hàm dịch chuyển với tốc độ nhất định
 local function moveToPosition(targetPart, speed)
     if humanoidRootPart and targetPart then
-        local tweenInfo = TweenInfo.new(speed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+        local distance = (humanoidRootPart.Position - targetPart.Position).Magnitude
+        local timeToMove = distance / speed -- Thời gian di chuyển
+
+        local tweenInfo = TweenInfo.new(timeToMove, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
         local goal = {CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)} -- Dịch lên 3 đơn vị để tránh kẹt
         local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
         tween:Play()
@@ -69,7 +94,11 @@ local function autoMoveToChests()
             -- Tìm Part trong rương để dịch chuyển đến
             local targetPart = chest:FindFirstChild("HumanoidRootPart") or chest:FindFirstChildWhichIsA("BasePart")
             if targetPart then
-                moveToPosition(targetPart, 2) -- Dịch chuyển với tốc độ 2 giây
+                local speed = tonumber(speedInput.Text) or 10 -- Lấy tốc độ từ ô nhập
+                if isKmPerSecond then
+                    speed = speed * 1000 -- Chuyển từ km/s sang m/s
+                end
+                moveToPosition(targetPart, speed)
                 chest:Destroy() -- Xóa rương khi đến nơi
                 updateChestCount()
             end
@@ -85,6 +114,12 @@ toggleButton.MouseButton1Click:Connect(function()
     if isMoving then
         autoMoveToChests()
     end
+end)
+
+-- 🔄 Đổi đơn vị giữa m/s và km/s
+unitButton.MouseButton1Click:Connect(function()
+    isKmPerSecond = not isKmPerSecond
+    unitButton.Text = isKmPerSecond and "Đơn vị: km/s" or "Đơn vị: m/s"
 end)
 
 -- 🔥 Hiển thị số rương ban đầu
