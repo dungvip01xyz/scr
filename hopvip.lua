@@ -1,6 +1,3 @@
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-local playerNames = getgenv().CheckpPlayer
 function HopLower()
     local maxplayers, gamelink, goodserver, data_table = math.huge, "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     if not _G.FailedServerID then _G.FailedServerID = {} end
@@ -124,23 +121,21 @@ function SuperFixLagMAX()
 
     print("🚀 SuperFixLagMAX: Đã xóa mọi thứ gây lag, FPS tăng cực mạnh!")
 end
-function CheckpPlayer()
-    while true do
-        if table.find(playerNames, localPlayer.Name) then
-            print("Tên tôi có trong danh sách, bỏ qua kiểm tra.") 
-            return
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer 
+local playerNames = getgenv().CheckpPlayer
+for _, playerName in ipairs(playerNames) do 
+    if playerName == localPlayer.Name then
+        print("Tên tôi có trong danh sách, bỏ qua kiểm tra.") 
+    else
+        local player = Players:FindFirstChild(playerName)
+        if player then
+            print(playerName .. " đang ở trong server, tôi thoát game.")
+            HopLower()
+            break 
+        else
+            print(playerName .. " không có trong server, tôi ở lại.")
+			SuperFixLagMAX()
         end
-        for _, playerName in ipairs(playerNames) do
-            local player = Players:FindFirstChild(playerName)
-            if player then
-                print(playerName .. " đang ở trong server, tôi thoát game.")
-                HopLower()
-                return
-            end
-        end
-        print("Không có người chơi nào trong danh sách trong server, tiếp tục kiểm tra...")
-        wait(5)  
     end
 end
-task.spawn(CheckpPlayer)
-task.spawn(SuperFixLagMAX)
