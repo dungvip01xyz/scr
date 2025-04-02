@@ -132,6 +132,7 @@ for _, playerName in ipairs(playerNames) do
         if player then
             print(playerName .. " đang ở trong server, tôi thoát game.")
             HopLower()
+			HopLower()
             break 
         else
             print(playerName .. " không có trong server, tôi ở lại.")
