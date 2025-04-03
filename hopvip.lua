@@ -1,3 +1,6 @@
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer 
+local playerNames = getgenv().CheckpPlayer
 function Hop()
     local v372 = game.PlaceId;
     local v373 = {};
@@ -123,9 +126,33 @@ function SuperFixLagMAX()
 
     print("🚀 SuperFixLagMAX: Đã xóa mọi thứ gây lag, FPS tăng cực mạnh!")
 end
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer 
-local playerNames = getgenv().CheckpPlayer
+local function checkBeli(time)
+    while true do
+        local beliBefore = localPlayer.Data.Beli.Value -- Lấy giá trị Beli ban đầu
+        local startTime = tick() -- Lấy thời gian bắt đầu
+        while tick() - startTime < time do
+            local remainingTime = time - (tick() - startTime) -- Tính thời gian còn lại
+            print("Thời gian còn lại: " .. math.ceil(remainingTime) .. " giây") -- Làm tròn lên
+            wait(1)
+        end
+        local beliAfter = localPlayer.Data.Beli.Value 
+        if beliAfter > beliBefore then
+            print("Beli đã tăng! 🤑")
+        elseif beliAfter < beliBefore then
+            print("Beli đã giảm! 😢")
+            task.spawn(Hop)
+            task.spawn(Hop)
+            task.spawn(Hop)
+            break
+        else
+            print("Beli không thay đổi. 😐")
+            task.spawn(Hop)
+            task.spawn(Hop)
+            task.spawn(Hop)
+            break
+        end
+    end
+end
 for _, playerName in ipairs(playerNames) do 
     if playerName == localPlayer.Name then
         print("Tên tôi có trong danh sách, bỏ qua kiểm tra.") 
@@ -139,7 +166,8 @@ for _, playerName in ipairs(playerNames) do
             break 
         else
             print(playerName .. " không có trong server, tôi ở lại.")
-			SuperFixLagMAX()
         end
     end
 end
+task.spawn(SuperFixLagMAX)
+task.spawn(checkBeli, 120)
