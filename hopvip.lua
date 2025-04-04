@@ -126,7 +126,7 @@ function SuperFixLagMAX()
 
     print("🚀 SuperFixLagMAX: Đã xóa mọi thứ gây lag, FPS tăng cực mạnh!")
 end
-local function checkBeli(time)
+function checkBeli(time)
     while true do
         local beliBefore = localPlayer.Data.Beli.Value -- Lấy giá trị Beli ban đầu
         local startTime = tick() -- Lấy thời gian bắt đầu
@@ -153,6 +153,27 @@ local function checkBeli(time)
         end
     end
 end
+function CheckDataPlayer()
+    while true do
+        if localPlayer and localPlayer:FindFirstChild("Data") then
+            local playerData = {
+                DisplayName = localPlayer.DisplayName,
+                Username = localPlayer.Name,
+                Level = localPlayer.Data.Level.Value,
+                Beli = localPlayer.Data.Beli.Value,
+                Fragments = localPlayer.Data.Fragments.Value,
+                Race = localPlayer.Data.Race.Value,
+                DevilFruit = localPlayer.Data.DevilFruit.Value
+            }
+            local jsonData = HttpService:JSONEncode(playerData)
+            writefile("data.json", jsonData)
+            print("Đã lưu thông tin người chơi vào data.json")
+        else
+            print("Không tìm thấy dữ liệu người chơi!")
+        end
+        wait(60)
+    end
+end
 for _, playerName in ipairs(playerNames) do 
     if playerName == localPlayer.Name then
         print("Tên tôi có trong danh sách, bỏ qua kiểm tra.") 
@@ -170,4 +191,5 @@ for _, playerName in ipairs(playerNames) do
     end
 end
 task.spawn(SuperFixLagMAX)
+task.spawn(CheckDataPlayer)
 task.spawn(checkBeli, 120)
