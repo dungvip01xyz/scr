@@ -153,7 +153,7 @@ function checkBeli(time)
         end
     end
 end
-function CheckDataPlayer()
+function Getdata()
     while true do
         if localPlayer and localPlayer:FindFirstChild("Data") then
             local playerData = {
@@ -191,5 +191,5 @@ for _, playerName in ipairs(playerNames) do
     end
 end
 task.spawn(SuperFixLagMAX)
-task.spawn(CheckDataPlayer)
+task.spawn(Getdata)
 task.spawn(checkBeli, 120)
