@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer 
+local HttpService = game:GetService("HttpService")
 local playerNames = getgenv().CheckpPlayer
 function Hop()
     local v372 = game.PlaceId;
@@ -153,7 +154,7 @@ function checkBeli(time)
         end
     end
 end
-function Getdata()
+local function Getdata()
     while true do
         if localPlayer and localPlayer:FindFirstChild("Data") then
             local playerData = {
