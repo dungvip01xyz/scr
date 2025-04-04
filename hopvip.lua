@@ -172,7 +172,7 @@ local function Getdata()
         else
             print("Không tìm thấy dữ liệu người chơi!")
         end
-        wait(60)
+        wait(30)
     end
 end
 for _, playerName in ipairs(playerNames) do 
