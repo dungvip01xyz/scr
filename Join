@@ -1,0 +1,13 @@
+https://drive.google.com/file/d/1gqhtxMPBMYS2E5HTisc9BAfXSPUmmGWH/view
+----------------------------------
+Cài module
+echo "Đang tải..." && pkg update && pkg upgrade -y && pkg install python -y && pip install requests aiohttp colorama psutil
+
+pip install crypto
+
+pip install pycryptodome
+
+pip install bs4
+----------------------------------
+chạy tool 
+su -c "cd /sdcard/download && export PATH=$PATH:/data/data/com.termux/files/usr/bin && export TERM=xterm-256color && python ./roblox.py"
