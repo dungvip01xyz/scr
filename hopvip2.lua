@@ -123,15 +123,17 @@ function checkBeli(time)
             print("Beli đã tăng! 🤑")
         elseif beliAfter < beliBefore then
             print("Beli đã giảm! 😢")
-            task.spawn(Hop)
-            task.spawn(Hop)
-            task.spawn(Hop)
+            while true do
+                task.spawn(Hop)
+                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
+            end            
             break
         else
             print("Beli không thay đổi. 😐")
-            task.spawn(Hop)
-            task.spawn(Hop)
-            task.spawn(Hop)
+            while true do
+                task.spawn(Hop)
+                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
+            end            
             break
         end
     end
@@ -164,9 +166,10 @@ for _, playerName in ipairs(playerNames) do
         local player = Players:FindFirstChild(playerName)
         if player then
             print(playerName .. " đang ở trong server, tôi thoát game.")
-            task.spawn(Hop)
-            task.spawn(Hop)
-            task.spawn(Hop)
+            while true do
+                task.spawn(Hop)
+                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
+            end            
             break 
         else
             print(playerName .. " không có trong server, tôi ở lại.")
