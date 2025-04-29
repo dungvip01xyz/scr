@@ -181,10 +181,13 @@ local args = {
     [1] = "SetTeam",
     [2] = "Pirates"
 }
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+wait(2)
+_G.FarmChest = true
 task.spawn(fixlag)
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
-_G.FarmChest = true
+
 function WaitHRP(q0)
     if not q0 then return end
     return q0.Character:WaitForChild("HumanoidRootPart", 9)
