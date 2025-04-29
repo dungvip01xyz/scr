@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer 
+local HttpService = game:GetService("HttpService")
 local playerNames = getgenv().CheckpPlayer
 function Hop()
     local v372 = game.PlaceId;
@@ -60,71 +61,53 @@ function Hop()
     end
     v118();
 end
-function SuperFixLagMAX()
-	wait(10)
-    local Lighting = game:GetService("Lighting")
-    local Workspace = game:GetService("Workspace")
-    local Terrain = Workspace.Terrain
-
-    -- Tắt hoàn toàn hiệu ứng ánh sáng
-    for _, v in pairs(Lighting:GetChildren()) do
-        if v:IsA("PostEffect") or v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or 
-           v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
-            v:Destroy()
+function fixlag()
+    local lighting = game:GetService("Lighting")
+    local g = game
+    local w = g.Workspace
+    local l = g.Lighting
+    local t = w.Terrain
+    if lighting:FindFirstChild("FantasySky") then
+        lighting.FantasySky:Destroy()
+    end
+    t.WaterWaveSize = 0
+    t.WaterWaveSpeed = 0
+    t.WaterReflectance = 0
+    t.WaterTransparency = 0
+    l.GlobalShadows = false
+    l.FogEnd = 9e9
+    l.Brightness = 0
+    for _, v in pairs(g:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then 
+            v.Material = Enum.Material.Plastic
+            v.Reflectance = 0
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v.Transparency = 1
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v.Lifetime = NumberRange.new(0)
+        elseif v:IsA("Explosion") then
+            v.BlastPressure = 1
+            v.BlastRadius = 1
+        elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
+            v.Enabled = false
+        elseif v:IsA("MeshPart") then
+            v.Material = Enum.Material.Plastic
+            v.Reflectance = 0
+            v.TextureID = "rbxassetid://10385902758728957"
         end
     end
-    Lighting.GlobalShadows = false
-    Lighting.FogEnd = 1e9
-    Lighting.Brightness = 0
-
-    -- Tắt hiệu ứng nước
-    Terrain.WaterWaveSize = 0
-    Terrain.WaterWaveSpeed = 0
-    Terrain.WaterReflectance = 0
-    Terrain.WaterTransparency = 1
-
-    -- Xóa toàn bộ hiệu ứng và chi tiết không cần thiết
-    for _, obj in pairs(game:GetDescendants()) do
-        if obj:IsA("Part") or obj:IsA("Union") or obj:IsA("MeshPart") then
-            obj.Material = Enum.Material.Plastic
-            obj.Reflectance = 0
-            obj.Color = Color3.fromRGB(128, 128, 128) -- Tô màu xám để giảm lag
-        elseif obj:IsA("Decal") or obj:IsA("Texture") then
-            obj.Transparency = 1
-        elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
-            obj:Destroy()
-        elseif obj:IsA("Explosion") then
-            obj.BlastPressure = 0
-            obj.BlastRadius = 0
-        elseif obj:IsA("Fire") or obj:IsA("SpotLight") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
-            obj:Destroy()
+    for _, e in pairs(l:GetChildren()) do
+        if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or 
+           e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+            e.Enabled = false
         end
     end
-
-    -- Xóa mọi vật thể thừa trong Workspace để giảm lag
-    for _, obj in pairs(Workspace:GetDescendants()) do
-        if obj:IsA("Accessory") or obj:IsA("Hat") or obj:IsA("Clothing") or obj:IsA("ForceField") or 
-           obj:IsA("FaceInstance") or obj:IsA("SpecialMesh") or obj:IsA("SurfaceAppearance") then
-            obj:Destroy()
+    for _, v in pairs(game:GetService("Workspace").Camera:GetDescendants()) do
+        if v:IsA("Part") and v.Material == Enum.Material.Water then
+            v.Transparency = 1
+            v.Material = Enum.Material.Plastic
         end
     end
-
-    -- Giảm tải camera tối đa
-    local Camera = Workspace.CurrentCamera
-    Camera.FieldOfView = 50 -- Giảm xuống để tối ưu FPS
-    for _, obj in pairs(Camera:GetDescendants()) do
-        if obj:IsA("Part") and obj.Material == Enum.Material.Water then
-            obj.Transparency = 1
-            obj.Material = Enum.Material.Plastic
-        end
-    end
-
-    -- Xóa luôn skybox nếu cần
-    if Lighting:FindFirstChildOfClass("Sky") then
-        Lighting:FindFirstChildOfClass("Sky"):Destroy()
-    end
-
-    print("🚀 SuperFixLagMAX: Đã xóa mọi thứ gây lag, FPS tăng cực mạnh!")
 end
 function checkBeli(time)
     while true do
@@ -140,15 +123,17 @@ function checkBeli(time)
             print("Beli đã tăng! 🤑")
         elseif beliAfter < beliBefore then
             print("Beli đã giảm! 😢")
-            task.spawn(Hop)
-            task.spawn(Hop)
-            task.spawn(Hop)
+            while true do
+                task.spawn(Hop)
+                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
+            end            
             break
         else
             print("Beli không thay đổi. 😐")
-            task.spawn(Hop)
-            task.spawn(Hop)
-            task.spawn(Hop)
+            while true do
+                task.spawn(Hop)
+                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
+            end            
             break
         end
     end
@@ -181,15 +166,148 @@ for _, playerName in ipairs(playerNames) do
         local player = Players:FindFirstChild(playerName)
         if player then
             print(playerName .. " đang ở trong server, tôi thoát game.")
-            task.spawn(Hop)
-            task.spawn(Hop)
-            task.spawn(Hop)
+            while true do
+                task.spawn(Hop)
+                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
+            end            
             break 
         else
             print(playerName .. " không có trong server, tôi ở lại.")
         end
     end
 end
-task.spawn(SuperFixLagMAX)
+wait(2)
+local args = {
+    [1] = "SetTeam",
+    [2] = "Pirates"
+}
+task.spawn(fixlag)
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
+_G.FarmChest = true
+function WaitHRP(q0)
+    if not q0 then return end
+    return q0.Character:WaitForChild("HumanoidRootPart", 9)
+end
+function requestEntrance(teleportPos)
+    game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", teleportPos)
+    local char = game.Players.LocalPlayer.Character.HumanoidRootPart
+    char.CFrame = char.CFrame + Vector3.new(0, 50, 0)
+    task.wait(0.5)
+end
+function CheckNearestTeleporter(aI)
+    local vcspos = aI.Position
+    local minDist = math.huge
+    local chosenTeleport = nil
+    local y = game.PlaceId
+
+    local TableLocations = {}
+
+    if y == 2753915549 then
+        TableLocations = {
+            ["Sky3"] = Vector3.new(-7894, 5547, -380),
+            ["Sky3Exit"] = Vector3.new(-4607, 874, -1667),
+            ["UnderWater"] = Vector3.new(61163, 11, 1819),
+            ["Underwater City"] = Vector3.new(61165.19140625, 0.18704631924629211, 1897.379150390625),
+            ["Pirate Village"] = Vector3.new(-1242.4625244140625, 4.787059783935547, 3901.282958984375),
+            ["UnderwaterExit"] = Vector3.new(4050, -1, -1814)
+        }
+    elseif y == 4442272183 then
+        TableLocations = {
+            ["Swan Mansion"] = Vector3.new(-390, 332, 673),
+            ["Swan Room"] = Vector3.new(2285, 15, 905),
+            ["Cursed Ship"] = Vector3.new(923, 126, 32852),
+            ["Zombie Island"] = Vector3.new(-6509, 83, -133)
+        }
+    elseif y == 7449423635 then
+        TableLocations = {
+            ["Floating Turtle"] = Vector3.new(-12462, 375, -7552),
+            ["Hydra Island"] = Vector3.new(5657.88623046875, 1013.0790405273438, -335.4996337890625),
+            ["Mansion"] = Vector3.new(-12462, 375, -7552),
+            ["Castle"] = Vector3.new(-5036, 315, -3179),
+            ["Dimensional Shift"] = Vector3.new(-2097.3447265625, 4776.24462890625, -15013.4990234375),
+            ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
+            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276, 1, 2.14762768e-08, -1.99111154e-13, -2.14762768e-08, 1, -3.0510602e-08, 1.98455903e-13, 3.0510602e-08, 1),
+            ["Temple of Time"] = Vector3.new(28286, 14897, 103)
+        }
+    end
+
+    for _, v in pairs(TableLocations) do
+        local dist = (v - vcspos).Magnitude
+        if dist < minDist then
+            minDist = dist
+            chosenTeleport = v
+        end
+    end
+
+    local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    if minDist <= (vcspos - playerPos).Magnitude then
+        return chosenTeleport
+    end
+end
+
+function topos(Pos)
+    local plr = game.Players.LocalPlayer
+    if plr.Character and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild("HumanoidRootPart") then
+        local Distance = (Pos.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+        if not Pos then 
+            return 
+        end
+        local nearestTeleport = CheckNearestTeleporter(Pos)
+        if nearestTeleport then
+            requestEntrance(nearestTeleport)
+        end
+        if not plr.Character:FindFirstChild("PartTele") then
+            local PartTele = Instance.new("Part", plr.Character)
+            PartTele.Size = Vector3.new(10,1,10)
+            PartTele.Name = "PartTele"
+            PartTele.Anchored = true
+            PartTele.Transparency = 1
+            PartTele.CanCollide = true
+            PartTele.CFrame = WaitHRP(plr).CFrame 
+            PartTele:GetPropertyChangedSignal("CFrame"):Connect(function()
+                if not isTeleporting then return end
+                task.wait()
+                if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                    WaitHRP(plr).CFrame = PartTele.CFrame
+                end
+            end)
+        end
+        isTeleporting = true
+        local Tween = game:GetService("TweenService"):Create(plr.Character.PartTele, TweenInfo.new(Distance / 360, Enum.EasingStyle.Linear), {CFrame = Pos})
+        Tween:Play()
+        Tween.Completed:Connect(function(status)
+            if status == Enum.PlaybackState.Completed then
+                if plr.Character:FindFirstChild("PartTele") then
+                    plr.Character.PartTele:Destroy()
+                end
+                isTeleporting = false
+            end
+        end)
+    end
+end
+spawn(function()
+	while wait() do
+		if _G.FarmChest then
+			local Players = game:GetService("Players")
+			local Player = Players.LocalPlayer
+			local Character = Player.Character or Player.CharacterAdded:Wait()
+			local Position = Character:GetPivot().Position
+			local CollectionService = game:GetService("CollectionService")
+			local Chests = CollectionService:GetTagged("_ChestTagged")
+			local Distance, Nearest = math.huge
+			for i = 1, #Chests do
+				local Chest = Chests[i]
+				local Magnitude = (Chest:GetPivot().Position - Position).Magnitude
+				if (not Chest:GetAttribute("IsDisabled") and (Magnitude < Distance)) then
+					Distance, Nearest = Magnitude, Chest
+				end
+			end
+			if Nearest then
+				local ChestPosition = Nearest:GetPivot().Position
+				local CFrameTarget = CFrame.new(ChestPosition)
+				topos(CFrameTarget)
+			end
+		end
+	end
+end)
