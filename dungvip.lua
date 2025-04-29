@@ -176,6 +176,15 @@ for _, playerName in ipairs(playerNames) do
         end
     end
 end
+function EnableAntiAFK()
+    local vu = game:GetService("VirtualUser")
+    repeat wait() until game:IsLoaded()
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        wait(1)
+        vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    end)
+end
 wait(2)
 local args = {
     [1] = "SetTeam",
@@ -187,6 +196,7 @@ _G.FarmChest = true
 task.spawn(fixlag)
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
+task.spawn(EnableAntiAFK)
 
 function WaitHRP(q0)
     if not q0 then return end
