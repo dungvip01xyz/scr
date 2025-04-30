@@ -320,9 +320,9 @@ function Chest()
 		end
 	end
 end
-task.spawn(selectTeam)
-task.spawn(fixlag)
-task.spawn(Getdata)
-task.spawn(checkBeli, 120)
-task.spawn(EnableAntiAFK)
+-- task.spawn(selectTeam)
+-- task.spawn(fixlag)
+-- task.spawn(Getdata)
+-- task.spawn(checkBeli, 120)
+-- task.spawn(EnableAntiAFK)
 task.spawn(Chest)
