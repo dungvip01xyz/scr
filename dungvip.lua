@@ -298,27 +298,27 @@ function topos(Pos)
     end
 end
 function Chest()
-	wait(5)
+    print("bat dau nhat ruong")
 	while true do
-			local Players = game:GetService("Players")
-			local Player = Players.LocalPlayer
-			local Character = Player.Character or Player.CharacterAdded:Wait()
-			local Position = Character:GetPivot().Position
-			local CollectionService = game:GetService("CollectionService")
-			local Chests = CollectionService:GetTagged("_ChestTagged")
-			local Distance, Nearest = math.huge
-			for i = 1, #Chests do
-				local Chest = Chests[i]
-				local Magnitude = (Chest:GetPivot().Position - Position).Magnitude
-				if (not Chest:GetAttribute("IsDisabled") and (Magnitude < Distance)) then
-					Distance, Nearest = Magnitude, Chest
-				end
+		local Players = game:GetService("Players")
+		local Player = Players.LocalPlayer
+		local Character = Player.Character or Player.CharacterAdded:Wait()
+		local Position = Character:GetPivot().Position
+		local CollectionService = game:GetService("CollectionService")
+		local Chests = CollectionService:GetTagged("_ChestTagged")
+		local Distance, Nearest = math.huge
+		for i = 1, #Chests do
+			local Chest = Chests[i]
+			local Magnitude = (Chest:GetPivot().Position - Position).Magnitude
+			if (not Chest:GetAttribute("IsDisabled") and (Magnitude < Distance)) then
+				Distance, Nearest = Magnitude, Chest
 			end
-			if Nearest then
-				local ChestPosition = Nearest:GetPivot().Position
-				local CFrameTarget = CFrame.new(ChestPosition)
-				topos(CFrameTarget)
-			end
+		end
+		if Nearest then
+			local ChestPosition = Nearest:GetPivot().Position
+			local CFrameTarget = CFrame.new(ChestPosition)
+			topos(CFrameTarget)
+		end
 	end
 end
 task.spawn(selectTeam)
