@@ -298,7 +298,6 @@ function topos(Pos)
     end
 end
 function Chest()
-    print("bat dau nhat ruong")
 	while true do
 		local Players = game:GetService("Players")
 		local Player = Players.LocalPlayer
@@ -319,7 +318,6 @@ function Chest()
 			local CFrameTarget = CFrame.new(ChestPosition)
 			topos(CFrameTarget)
 		end
-        wait(1)
 	end
 end
 task.spawn(selectTeam)
