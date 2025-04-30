@@ -296,12 +296,13 @@ function topos(Pos)
         end)
     end
 end
+
 task.spawn(selectTeam)
 task.spawn(fixlag)
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
 task.spawn(EnableAntiAFK)
-wait(2)
+wait(5)
 _G.FarmChest = true
 spawn(function()
 	while wait() do
