@@ -297,14 +297,8 @@ function topos(Pos)
         end)
     end
 end
-task.spawn(selectTeam)
-task.spawn(fixlag)
-task.spawn(Getdata)
-task.spawn(checkBeli, 120)
-task.spawn(EnableAntiAFK)
-spawn(function()
-	while wait() do
-		if _G.FarmChest then
+function Chest()
+	while true do
 			local Players = game:GetService("Players")
 			local Player = Players.LocalPlayer
 			local Character = Player.Character or Player.CharacterAdded:Wait()
@@ -324,6 +318,11 @@ spawn(function()
 				local CFrameTarget = CFrame.new(ChestPosition)
 				topos(CFrameTarget)
 			end
-		end
 	end
-end)
+end
+task.spawn(selectTeam)
+task.spawn(fixlag)
+task.spawn(Getdata)
+task.spawn(checkBeli, 120)
+task.spawn(EnableAntiAFK)
+task.spawn(Chest)
