@@ -9,7 +9,8 @@ function selectTeam()
             [2] = "Pirates"
         }
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
-        wait(1)
+        wait(5)
+        _G.FarmChest = true
     end
 end
 function Hop()
@@ -301,7 +302,6 @@ task.spawn(selectTeam)
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
 task.spawn(EnableAntiAFK)
-_G.FarmChest = true
 spawn(function()
 	while wait() do
 		if _G.FarmChest then
