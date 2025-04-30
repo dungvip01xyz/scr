@@ -319,6 +319,7 @@ function Chest()
 			local CFrameTarget = CFrame.new(ChestPosition)
 			topos(CFrameTarget)
 		end
+        wait(1)
 	end
 end
 task.spawn(selectTeam)
