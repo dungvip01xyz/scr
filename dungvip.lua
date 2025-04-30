@@ -10,7 +10,7 @@ function selectTeam()
             [2] = "Pirates"
         }
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
-        wait(1)
+        wait(5)
     end
 end
 function Hop()
