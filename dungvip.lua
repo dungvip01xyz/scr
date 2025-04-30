@@ -118,6 +118,7 @@ function fixlag()
             v.Material = Enum.Material.Plastic
         end
     end
+    _G.FarmChest = true
 end
 function checkBeli(time)
     while true do
@@ -302,8 +303,6 @@ task.spawn(fixlag)
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
 task.spawn(EnableAntiAFK)
-wait(5)
-_G.FarmChest = true
 spawn(function()
 	while wait() do
 		if _G.FarmChest then
