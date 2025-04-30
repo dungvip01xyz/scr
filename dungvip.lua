@@ -2,6 +2,17 @@ local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer 
 local HttpService = game:GetService("HttpService")
 local playerNames = getgenv().CheckpPlayer
+function selectTeam()
+    while localPlayer.Neutral do
+        local args = {
+            [1] = "SetTeam",
+            [2] = "Pirates"
+        }
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+        wait(1)
+    end
+end
+
 function Hop()
     local v372 = game.PlaceId;
     local v373 = {};
@@ -185,14 +196,9 @@ function EnableAntiAFK()
         vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
     end)
 end
-wait(2)
-local args = {
-    [1] = "SetTeam",
-    [2] = "Pirates"
-}
-game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
-wait(2)
+
 _G.FarmChest = true
+task.spawn(selectTeam)
 task.spawn(fixlag)
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
