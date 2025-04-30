@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer 
 local HttpService = game:GetService("HttpService")
 local playerNames = getgenv().CheckpPlayer
+_G.FarmChest = true
 function selectTeam()
     while localPlayer.Neutral do
         local args = {
@@ -12,7 +13,6 @@ function selectTeam()
         wait(1)
     end
 end
-
 function Hop()
     local v372 = game.PlaceId;
     local v373 = {};
@@ -196,14 +196,6 @@ function EnableAntiAFK()
         vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
     end)
 end
-
-_G.FarmChest = true
-task.spawn(selectTeam)
-task.spawn(fixlag)
-task.spawn(Getdata)
-task.spawn(checkBeli, 120)
-task.spawn(EnableAntiAFK)
-
 function WaitHRP(q0)
     if not q0 then return end
     return q0.Character:WaitForChild("HumanoidRootPart", 9)
@@ -305,6 +297,11 @@ function topos(Pos)
         end)
     end
 end
+task.spawn(selectTeam)
+task.spawn(fixlag)
+task.spawn(Getdata)
+task.spawn(checkBeli, 120)
+task.spawn(EnableAntiAFK)
 spawn(function()
 	while wait() do
 		if _G.FarmChest then
