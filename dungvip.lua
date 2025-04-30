@@ -10,7 +10,7 @@ function selectTeam()
             [2] = "Pirates"
         }
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
-        wait(5)
+        wait(1)
     end
 end
 function Hop()
@@ -298,6 +298,7 @@ function topos(Pos)
     end
 end
 function Chest()
+	wait(5)
 	while true do
 			local Players = game:GetService("Players")
 			local Player = Players.LocalPlayer
