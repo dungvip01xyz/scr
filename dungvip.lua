@@ -2,7 +2,6 @@ local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer 
 local HttpService = game:GetService("HttpService")
 local playerNames = getgenv().CheckpPlayer
-_G.FarmChest = true
 function selectTeam()
     while localPlayer.Neutral do
         local args = {
@@ -297,32 +296,35 @@ function topos(Pos)
         end)
     end
 end
-function Chest()
-	while true do
-		local Players = game:GetService("Players")
-		local Player = Players.LocalPlayer
-		local Character = Player.Character or Player.CharacterAdded:Wait()
-		local Position = Character:GetPivot().Position
-		local CollectionService = game:GetService("CollectionService")
-		local Chests = CollectionService:GetTagged("_ChestTagged")
-		local Distance, Nearest = math.huge
-		for i = 1, #Chests do
-			local Chest = Chests[i]
-			local Magnitude = (Chest:GetPivot().Position - Position).Magnitude
-			if (not Chest:GetAttribute("IsDisabled") and (Magnitude < Distance)) then
-				Distance, Nearest = Magnitude, Chest
+
+task.spawn(selectTeam)
+task.spawn(fixlag)
+task.spawn(Getdata)
+task.spawn(checkBeli, 120)
+task.spawn(EnableAntiAFK)
+_G.FarmChest = true
+spawn(function()
+	while wait() do
+		if _G.FarmChest then
+			local Players = game:GetService("Players")
+			local Player = Players.LocalPlayer
+			local Character = Player.Character or Player.CharacterAdded:Wait()
+			local Position = Character:GetPivot().Position
+			local CollectionService = game:GetService("CollectionService")
+			local Chests = CollectionService:GetTagged("_ChestTagged")
+			local Distance, Nearest = math.huge
+			for i = 1, #Chests do
+				local Chest = Chests[i]
+				local Magnitude = (Chest:GetPivot().Position - Position).Magnitude
+				if (not Chest:GetAttribute("IsDisabled") and (Magnitude < Distance)) then
+					Distance, Nearest = Magnitude, Chest
+				end
+			end
+			if Nearest then
+				local ChestPosition = Nearest:GetPivot().Position
+				local CFrameTarget = CFrame.new(ChestPosition)
+				topos(CFrameTarget)
 			end
 		end
-		if Nearest then
-			local ChestPosition = Nearest:GetPivot().Position
-			local CFrameTarget = CFrame.new(ChestPosition)
-			topos(CFrameTarget)
-		end
 	end
-end
--- task.spawn(selectTeam)
--- task.spawn(fixlag)
--- task.spawn(Getdata)
--- task.spawn(checkBeli, 120)
--- task.spawn(EnableAntiAFK)
-task.spawn(Chest)
+end)
