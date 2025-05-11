@@ -4,12 +4,12 @@ local HttpService = game:GetService("HttpService")
 local playerNames = getgenv().CheckpPlayer
 function selectTeam()
     while localPlayer.Neutral do
+		wait(5)
         local args = {
             [1] = "SetTeam",
             [2] = "Pirates"
         }
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
-        wait(5)
         _G.FarmChest = true
     end
 end
