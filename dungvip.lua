@@ -4,12 +4,12 @@ local HttpService = game:GetService("HttpService")
 local playerNames = getgenv().CheckpPlayer
 function selectTeam()
     while localPlayer.Neutral do
-		wait(5)
         local args = {
             [1] = "SetTeam",
             [2] = "Pirates"
         }
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+        wait(5)
         _G.FarmChest = true
     end
 end
@@ -298,9 +298,7 @@ function topos(Pos)
     end
 end
 
-task.spawn(selectTeam)
-wait(5)
-task.spawn(selectTeam)
+selectTeam()
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
 task.spawn(EnableAntiAFK)
