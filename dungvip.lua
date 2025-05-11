@@ -9,6 +9,7 @@ function selectTeam()
             [2] = "Pirates"
         }
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+		print("join thanh cong")
         wait(5)
         _G.FarmChest = true
     end
