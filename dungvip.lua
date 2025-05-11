@@ -299,6 +299,8 @@ function topos(Pos)
 end
 
 task.spawn(selectTeam)
+wait(5)
+task.spawn(selectTeam)
 task.spawn(Getdata)
 task.spawn(checkBeli, 120)
 task.spawn(EnableAntiAFK)
