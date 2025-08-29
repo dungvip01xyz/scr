@@ -2,7 +2,8 @@ local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer 
 local HttpService = game:GetService("HttpService")
 local playerNames = getgenv().CheckpPlayer
-local Timecheck = getgenv().CheckpPlayer
+local Timecheck = getgenv().Timecheck
+local fixlagcheck = getgenv().fixlagcheck
 function Hop()
     local v372 = game.PlaceId;
     local v373 = {};
@@ -177,6 +178,10 @@ for _, playerName in ipairs(playerNames) do
         end
     end
 end
-task.spawn(fixlag)
+
+if fixlagcheck == true then
+    task.spawn(fixlag)
+    print("Fix lag đang bật")
+end
 task.spawn(Getdata)
 task.spawn(checkBeli, Timecheck)
