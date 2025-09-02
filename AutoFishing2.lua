@@ -7,7 +7,8 @@ local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local playerGui = player:WaitForChild("PlayerGui")
 local vim = game:GetService("VirtualInputManager")
-local key = getgenv().key
+local key = "Four"
+local character = Workspace:FindFirstChild("Characters"):FindFirstChild(player.Name)
 
 local function sendKey(keyName, holdTime)
     holdTime = tonumber(holdTime) or 0.1
@@ -82,7 +83,19 @@ task.spawn(function()
         end
     end
 end)
-
+local function checkRope()
+    local fishingRod = character:FindFirstChild("Fishing Rod")
+    if fishingRod then
+        local bobber = fishingRod:FindFirstChild("Bobber")
+        if bobber then
+            local rope = bobber:FindFirstChild("RopeConstraint")
+            if rope then
+                return true
+            end
+        end
+    end
+    return false
+end
 -- Kiểm tra Rope + VanityBobber
 task.spawn(function()
     while task.wait(0.2) do
@@ -97,10 +110,18 @@ task.spawn(function()
                         local rope = bobber:FindFirstChild("RopeConstraint")
                         if rope and rope.Length == 0 then
                             print("Rope = 0 -> key!")
-                            task.wait(2)
-                            sendKey(key, 0.2)
-                            task.wait(4)
-                            sendKey(key, 0.2)
+                            task.wait(1)
+                            pressMouse()
+                            task.wait(1)
+                            releaseMouse()
+                            if checkRope() then
+                                task.wait(1)
+                                pressMouse()
+                                task.wait(1)
+                                releaseMouse()
+                            else
+                                print( "❌ Không có RopeConstraint")
+                            end
                         end
                     end
                     -- VanityBobber
