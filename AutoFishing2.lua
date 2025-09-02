@@ -97,7 +97,7 @@ task.spawn(function()
                         local rope = bobber:FindFirstChild("RopeConstraint")
                         if rope and rope.Length == 0 then
                             print("Rope = 0 -> key!")
-                            task.wait(1)
+                            task.wait(4)
                             sendKey(key, 0.2)
                             pressMouse()
                             releaseMouse()
