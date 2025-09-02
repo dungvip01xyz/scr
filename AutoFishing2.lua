@@ -104,7 +104,7 @@ task.spawn(function()
                             task.wait(1)
                             pressMouse()
                             releaseMouse()
-                            task.wait(1)
+                            task.wait(2)
                             sendKey(key, 0.2)
                         end
                     end
