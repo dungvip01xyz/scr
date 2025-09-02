@@ -9,7 +9,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local vim = game:GetService("VirtualInputManager")
 local key = getgenv().key
 local character = Workspace:FindFirstChild("Characters"):FindFirstChild(player.Name)
-loadstring(game:HttpGet("https://raw.githubusercontent.com/dungvip01xyz/scr/refs/heads/main/fist.lua"))()
+
 local function sendKey(keyName, holdTime)
     holdTime = tonumber(holdTime) or 0.1
     local keyCode = Enum.KeyCode[keyName]
@@ -114,7 +114,7 @@ task.spawn(function()
                             pressMouse()
                             task.wait(1)
                             releaseMouse()
-                            if checkRope() then
+                            while checkRope() then
                                 task.wait(1)
                                 pressMouse()
                                 task.wait(1)
