@@ -7,7 +7,7 @@ local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local playerGui = player:WaitForChild("PlayerGui")
 local vim = game:GetService("VirtualInputManager")
-local key = "Four"
+local key = getgenv().key
 local character = Workspace:FindFirstChild("Characters"):FindFirstChild(player.Name)
 
 local function sendKey(keyName, holdTime)
