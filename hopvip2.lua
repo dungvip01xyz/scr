@@ -1,181 +1,160 @@
 local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer 
-local HttpService = game:GetService("HttpService")
-local playerNames = getgenv().CheckpPlayer
-function Hop()
-    local v372 = game.PlaceId;
-    local v373 = {};
-    local v374 = "";
-    local v375 = os.date("!*t").hour;
-    local v376 = false;
-    function TPReturner()
-        local v556;
-        if (v374 == "") then
-            v556 = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. v372 .. "/servers/Public?sortOrder=Asc&limit=100"));
-        else
-            v556 = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. v372 .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. v374));
+local Workspace = game:GetService("Workspace")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local playerGui = player:WaitForChild("PlayerGui")
+local vim = game:GetService("VirtualInputManager")
+local key = getgenv().key
+
+local function sendKey(keyName, holdTime)
+    holdTime = tonumber(holdTime) or 0.1
+    local keyCode = Enum.KeyCode[keyName]
+    if not keyCode then
+        warn("Phím '" .. tostring(keyName) .. "' không hợp lệ!")
+        return
+    end
+
+    vim:SendKeyEvent(true, keyCode, false, game)  -- nhấn phím
+    task.wait(holdTime)
+    vim:SendKeyEvent(false, keyCode, false, game) -- thả phím
+end
+local holdingMouse = false
+local autoFishing = false
+
+-- Vị trí click (giữa ngang, 1/4 dọc màn hình)
+local screenX = camera.ViewportSize.X / 2
+local screenY = camera.ViewportSize.Y / 4
+
+-- Hàm nhấn chuột
+local function pressMouse()
+    if not holdingMouse then
+        VirtualInputManager:SendMouseButtonEvent(screenX, screenY, 0, true, game, 1)
+        holdingMouse = true
+    end
+end
+
+-- Hàm thả chuột
+local function releaseMouse()
+    if holdingMouse then
+        VirtualInputManager:SendMouseButtonEvent(screenX, screenY, 0, false, game, 1)
+        holdingMouse = false
+    end
+end
+
+-- GUI Toggle
+local ScreenGui = Instance.new("ScreenGui", player.PlayerGui)
+local ToggleButton = Instance.new("TextButton", ScreenGui)
+ToggleButton.Size = UDim2.new(0, 140, 0, 40)
+ToggleButton.Position = UDim2.new(0.05, 0, 0.1, 0)
+ToggleButton.Text = "AutoFishing: OFF"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+ToggleButton.TextColor3 = Color3.new(1, 1, 1)
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.TextSize = 18
+
+ToggleButton.MouseButton1Click:Connect(function()
+    autoFishing = not autoFishing
+    if autoFishing then
+        ToggleButton.Text = "AutoFishing: ON"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+    else
+        ToggleButton.Text = "AutoFishing: OFF"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        releaseMouse() -- đảm bảo chuột thả khi tắt
+    end
+end)
+
+-- Kiểm tra ParticleEmitter
+task.spawn(function()
+    while task.wait(0.5) do
+        if autoFishing then
+            local ok, emitter = pcall(function()
+                return Workspace.Characters[player.Name].Head.Attachment.ParticleEmitter
+            end)
+            if ok and emitter then
+                pressMouse()
+                task.wait(0.1)
+                releaseMouse()
+            end
         end
-        local v557 = "";
-        if (v556.nextPageCursor and (v556.nextPageCursor ~= "null") and (v556.nextPageCursor ~= nil)) then
-            v374 = v556.nextPageCursor;
-        end
-        local v558 = 0;
-        for v651, v652 in pairs(v556.data) do
-            local v653 = true;
-            v557 = tostring(v652.id);
-            if (tonumber(v652.maxPlayers) > tonumber(v652.playing)) then
-                for v872, v873 in pairs(v373) do
-                    if (v558 ~= 0) then
-                        if (v557 == tostring(v873)) then
-                            v653 = false;
+    end
+end)
+
+-- Kiểm tra Rope + VanityBobber
+task.spawn(function()
+    while task.wait(0.2) do
+        if autoFishing then
+            local character = Workspace:FindFirstChild("Characters"):FindFirstChild(player.Name)
+            if character then
+                local fishingRod = character:FindFirstChild("Fishing Rod")
+                if fishingRod then
+                    -- Rope
+                    local bobber = fishingRod:FindFirstChild("Bobber")
+                    if bobber then
+                        local rope = bobber:FindFirstChild("RopeConstraint")
+                        if rope and rope.Length == 0 then
+                            print("Rope = 0 -> key!")
+                            task.wait(2)
+                            sendKey(key, 0.2)
+                            pressMouse()
+                            releaseMouse()
+                            task.wait(1)
+                            pressMouse()
+                            releaseMouse()
+                            task.wait(1)
+                            pressMouse()
+                            releaseMouse()
+                            task.wait(1)
+                            sendKey(key, 0.2)
                         end
-                    elseif (tonumber(v375) ~= tonumber(v873)) then
-                        local v1472 = pcall(function()
-                            v373 = {};
-                            table.insert(v373, v375);
-                        end);
                     end
-                    v558 = v558 + 1 ;
-                end
-                if (v653 == true) then
-                    table.insert(v373, v557);
-                    wait();
-                    pcall(function()
-                        wait();
-                        game:GetService("TeleportService"):TeleportToPlaceInstance(v372, v557, game.Players.LocalPlayer);
-                    end);
-                    wait();
+                    -- VanityBobber
+                    local vanityBobber = fishingRod:FindFirstChild("VanityBobber")
+                    if vanityBobber then
+                        print("Có VanityBobber -> Auto click")
+                        pressMouse()
+                        task.wait(1)
+                        releaseMouse()
+                        pressMouse()
+                        task.wait(2)
+                        releaseMouse()
+                    end
+                else
+                    sendKey(key, 0.2)
                 end
             end
         end
     end
-    function v118()
-        while wait() do
-            pcall(function()
-                TPReturner();
-                if (v374 ~= "") then
-                    TPReturner();
-                end
-            end);
-        end
-    end
-    v118();
+end)
+
+-- Minigame (Fish & ReelZone)
+local function getReelZone()
+    local ok, reelZone = pcall(function()
+        return playerGui.Fishing_Reeling.Minigame.Container.ReelZone
+    end)
+    if ok then return reelZone end
 end
-function fixlag()
-    local lighting = game:GetService("Lighting")
-    local g = game
-    local w = g.Workspace
-    local l = g.Lighting
-    local t = w.Terrain
-    if lighting:FindFirstChild("FantasySky") then
-        lighting.FantasySky:Destroy()
-    end
-    t.WaterWaveSize = 0
-    t.WaterWaveSpeed = 0
-    t.WaterReflectance = 0
-    t.WaterTransparency = 0
-    l.GlobalShadows = false
-    l.FogEnd = 9e9
-    l.Brightness = 0
-    for _, v in pairs(g:GetDescendants()) do
-        if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then 
-            v.Material = Enum.Material.Plastic
-            v.Reflectance = 0
-        elseif v:IsA("Decal") or v:IsA("Texture") then
-            v.Transparency = 1
-        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-            v.Lifetime = NumberRange.new(0)
-        elseif v:IsA("Explosion") then
-            v.BlastPressure = 1
-            v.BlastRadius = 1
-        elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
-            v.Enabled = false
-        elseif v:IsA("MeshPart") then
-            v.Material = Enum.Material.Plastic
-            v.Reflectance = 0
-            v.TextureID = "rbxassetid://10385902758728957"
-        end
-    end
-    for _, e in pairs(l:GetChildren()) do
-        if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or 
-           e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
-            e.Enabled = false
-        end
-    end
-    for _, v in pairs(game:GetService("Workspace").Camera:GetDescendants()) do
-        if v:IsA("Part") and v.Material == Enum.Material.Water then
-            v.Transparency = 1
-            v.Material = Enum.Material.Plastic
-        end
-    end
+
+local function getFish()
+    local ok, fish = pcall(function()
+        return playerGui.Fishing_Reeling.Minigame.Container.Fish
+    end)
+    if ok then return fish end
 end
-function checkBeli(time)
-    while true do
-        local beliBefore = localPlayer.Data.Beli.Value -- Lấy giá trị Beli ban đầu
-        local startTime = tick() -- Lấy thời gian bắt đầu
-        while tick() - startTime < time do
-            local remainingTime = time - (tick() - startTime) -- Tính thời gian còn lại
-            print("Thời gian còn lại: " .. math.ceil(remainingTime) .. " giây") -- Làm tròn lên
-            wait(1)
-        end
-        local beliAfter = localPlayer.Data.Beli.Value 
-        if beliAfter > beliBefore then
-            print("Beli đã tăng! 🤑")
-        elseif beliAfter < beliBefore then
-            print("Beli đã giảm! 😢")
-            while true do
-                task.spawn(Hop)
-                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
-            end            
-            break
-        else
-            print("Beli không thay đổi. 😐")
-            while true do
-                task.spawn(Hop)
-                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
-            end            
-            break
+
+RunService.RenderStepped:Connect(function()
+    if autoFishing then
+        local fish = getFish()
+        local reelZone = getReelZone()
+        if fish and reelZone then
+            if fish.AbsolutePosition.X > reelZone.AbsolutePosition.X then
+                pressMouse()
+            else
+                releaseMouse()
+            end
         end
     end
-end
-local function Getdata()
-    while true do
-        if localPlayer and localPlayer:FindFirstChild("Data") then
-            local playerData = {
-                DisplayName = localPlayer.DisplayName,
-                Username = localPlayer.Name,
-                Level = localPlayer.Data.Level.Value,
-                Beli = localPlayer.Data.Beli.Value,
-                Fragments = localPlayer.Data.Fragments.Value,
-                Race = localPlayer.Data.Race.Value,
-                DevilFruit = localPlayer.Data.DevilFruit.Value
-            }
-            local jsonData = HttpService:JSONEncode(playerData)
-            writefile("data.json", jsonData)
-            print("Đã lưu thông tin người chơi vào data.json")
-        else
-            print("Không tìm thấy dữ liệu người chơi!")
-        end
-        wait(60)
-    end
-end
-for _, playerName in ipairs(playerNames) do 
-    if playerName == localPlayer.Name then
-        print("Tên tôi có trong danh sách, bỏ qua kiểm tra.") 
-    else
-        local player = Players:FindFirstChild(playerName)
-        if player then
-            print(playerName .. " đang ở trong server, tôi thoát game.")
-            while true do
-                task.spawn(Hop)
-                task.wait(1) -- nên có delay nếu không thì Roblox sẽ crash hoặc lag
-            end            
-            break 
-        else
-            print(playerName .. " không có trong server, tôi ở lại.")
-        end
-    end
-end
-task.spawn(fixlag)
-task.spawn(Getdata)
-task.spawn(checkBeli, 120)
+end)
