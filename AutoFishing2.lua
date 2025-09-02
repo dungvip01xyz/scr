@@ -7,13 +7,8 @@ local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local playerGui = player:WaitForChild("PlayerGui")
 local vim = game:GetService("VirtualInputManager")
+local key = getgenv().key
 
--- Biến chính
-local key = "Four" -- mặc định bấm số 4
-local holdingMouse = false
-local autoFishing = false
-
--- Hàm bấm phím
 local function sendKey(keyName, holdTime)
     holdTime = tonumber(holdTime) or 0.1
     local keyCode = Enum.KeyCode[keyName]
@@ -21,10 +16,13 @@ local function sendKey(keyName, holdTime)
         warn("Phím '" .. tostring(keyName) .. "' không hợp lệ!")
         return
     end
-    vim:SendKeyEvent(true, keyCode, false, game)
+
+    vim:SendKeyEvent(true, keyCode, false, game)  -- nhấn phím
     task.wait(holdTime)
-    vim:SendKeyEvent(false, keyCode, false, game)
+    vim:SendKeyEvent(false, keyCode, false, game) -- thả phím
 end
+local holdingMouse = false
+local autoFishing = false
 
 -- Vị trí click (giữa ngang, 1/4 dọc màn hình)
 local screenX = camera.ViewportSize.X / 2
@@ -46,28 +44,16 @@ local function releaseMouse()
     end
 end
 
--- ================= GUI =================
+-- GUI Toggle
 local ScreenGui = Instance.new("ScreenGui", player.PlayerGui)
-
--- Nút bật/tắt AutoFishing
 local ToggleButton = Instance.new("TextButton", ScreenGui)
-ToggleButton.Size = UDim2.new(0, 160, 0, 40)
+ToggleButton.Size = UDim2.new(0, 140, 0, 40)
 ToggleButton.Position = UDim2.new(0.05, 0, 0.1, 0)
 ToggleButton.Text = "AutoFishing: OFF"
 ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 ToggleButton.TextColor3 = Color3.new(1, 1, 1)
 ToggleButton.Font = Enum.Font.SourceSansBold
 ToggleButton.TextSize = 18
-
--- Label hiển thị phím hiện tại
-local CurrentKeyLabel = Instance.new("TextLabel", ScreenGui)
-CurrentKeyLabel.Size = UDim2.new(0, 160, 0, 30)
-CurrentKeyLabel.Position = UDim2.new(0.05, 0, 0.1, 45)
-CurrentKeyLabel.Text = "Key hiện tại: " .. key
-CurrentKeyLabel.BackgroundTransparency = 1
-CurrentKeyLabel.TextColor3 = Color3.new(1,1,1)
-CurrentKeyLabel.Font = Enum.Font.SourceSansBold
-CurrentKeyLabel.TextSize = 16
 
 ToggleButton.MouseButton1Click:Connect(function()
     autoFishing = not autoFishing
@@ -77,44 +63,9 @@ ToggleButton.MouseButton1Click:Connect(function()
     else
         ToggleButton.Text = "AutoFishing: OFF"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-        releaseMouse()
+        releaseMouse() -- đảm bảo chuột thả khi tắt
     end
 end)
-
--- Frame chọn phím
-local KeyFrame = Instance.new("Frame", ScreenGui)
-KeyFrame.Size = UDim2.new(0, 160, 0, 200)
-KeyFrame.Position = UDim2.new(0.05, 0, 0.25, 0)
-KeyFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-
-local Scrolling = Instance.new("ScrollingFrame", KeyFrame)
-Scrolling.Size = UDim2.new(1, 0, 1, 0)
-Scrolling.CanvasSize = UDim2.new(0, 0, 0, 0)
-Scrolling.ScrollBarThickness = 6
-Scrolling.BackgroundTransparency = 1
-
--- Danh sách phím hiển thị
-local keyList = {"One","Two","Three","Four","Five","Six","Seven"}
-
-for i, keyName in ipairs(keyList) do
-    local btn = Instance.new("TextButton", Scrolling)
-    btn.Size = UDim2.new(1, -10, 0, 30)
-    btn.Position = UDim2.new(0, 5, 0, (i-1)*35)
-    btn.Text = "Chọn phím: " .. keyName
-    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.SourceSansBold
-    btn.TextSize = 16
-
-    btn.MouseButton1Click:Connect(function()
-        key = keyName
-        CurrentKeyLabel.Text = "Key hiện tại: " .. key
-        print("Đã chọn phím: " .. key)
-    end)
-end
-Scrolling.CanvasSize = UDim2.new(0, 0, 0, #keyList * 35)
-
--- ================= AUTO FISHING =================
 
 -- Kiểm tra ParticleEmitter
 task.spawn(function()
@@ -145,8 +96,14 @@ task.spawn(function()
                     if bobber then
                         local rope = bobber:FindFirstChild("RopeConstraint")
                         if rope and rope.Length == 0 then
-                            print("Rope = 0 -> bấm phím " .. key)
+                            print("Rope = 0 -> key!")
+                            task.wait(1)
                             sendKey(key, 0.2)
+                            pressMouse()
+                            releaseMouse()
+                            task.wait(1)
+                            pressMouse()
+                            releaseMouse()
                             task.wait(1)
                             sendKey(key, 0.2)
                         end
@@ -162,6 +119,8 @@ task.spawn(function()
                         task.wait(2)
                         releaseMouse()
                     end
+                else
+                    sendKey(key, 0.2)
                 end
             end
         end
