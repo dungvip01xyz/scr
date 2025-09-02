@@ -2,7 +2,6 @@ local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local RunService = game:GetService("RunService")
-
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 local playerGui = player:WaitForChild("PlayerGui")
@@ -114,13 +113,11 @@ task.spawn(function()
                             pressMouse()
                             task.wait(1)
                             releaseMouse()
-                            while checkRope() then
+                            while checkRope() do
                                 task.wait(1)
                                 pressMouse()
                                 task.wait(1)
                                 releaseMouse()
-                            else
-                                print( "❌ Không có RopeConstraint")
                             end
                         end
                     end
