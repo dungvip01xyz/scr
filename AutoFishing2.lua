@@ -125,13 +125,13 @@ task.spawn(function()
                     local vanityBobber = fishingRod:FindFirstChild("VanityBobber")
                     if vanityBobber then
                         print("Có VanityBobber -> Auto click")
+                        task.wait(3)
                         pressMouse()
                         task.wait(1)
                         releaseMouse()
                         pressMouse()
                         task.wait(2)
                         releaseMouse()
-                        task.wait(3)
                     end
                 else
                     sendKey(key, 0.2)
