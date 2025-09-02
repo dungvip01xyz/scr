@@ -98,7 +98,7 @@ task.spawn(function()
                         task.wait(1)
                         releaseMouse()
                         pressMouse()
-                        task.wait(2)
+                        task.wait(1)
                         releaseMouse()
                     end
                 end
