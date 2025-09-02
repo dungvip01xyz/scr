@@ -1,0 +1,185 @@
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local player = Players.LocalPlayer
+local vim = game:GetService("VirtualInputManager")
+local MIN_PRICE = 9000000
+local AUTO_BUY_DISTANCE = 10
+local AUTO_BUY_INTERVAL = 0.2
+local BUY_COOLDOWN = 1
+local lastBuyTime = 0
+local AUTO_BUY_ENABLED = true
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AutoBuyGUI"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 250, 0, 150)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+local function createLabel(text, posY)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -10, 0, 20)
+    label.Position = UDim2.new(0, 5, 0, posY)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.Font = Enum.Font.SourceSans
+    label.TextSize = 18
+    label.Text = text
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = frame
+    return label
+end
+
+local function createTextBox(default, posY)
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(1, -10, 0, 25)
+    box.Position = UDim2.new(0, 5, 0, posY)
+    box.BackgroundColor3 = Color3.fromRGB(50,50,50)
+    box.TextColor3 = Color3.fromRGB(255,255,255)
+    box.Text = tostring(default)
+    box.ClearTextOnFocus = false
+    box.Font = Enum.Font.SourceSans
+    box.TextSize = 18
+    box.Parent = frame
+    return box
+end
+
+local minPriceLabel = createLabel("MIN_PRICE:", 5)
+local minPriceBox = createTextBox(MIN_PRICE, 25)
+
+local autoBuyDistanceLabel = createLabel("AUTO_BUY_DISTANCE:", 55)
+local autoBuyDistanceBox = createTextBox(AUTO_BUY_DISTANCE, 75)
+
+local toggleLabel = createLabel("Auto-Buy:", 105)
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(1, -10, 0, 25)
+toggleButton.Position = UDim2.new(0, 5, 0, 125)
+toggleButton.BackgroundColor3 = Color3.fromRGB(70,70,70)
+toggleButton.TextColor3 = Color3.fromRGB(255,255,255)
+toggleButton.Font = Enum.Font.SourceSans
+toggleButton.TextSize = 18
+toggleButton.Text = "ON"
+toggleButton.Parent = frame
+
+toggleButton.MouseButton1Click:Connect(function()
+    AUTO_BUY_ENABLED = not AUTO_BUY_ENABLED
+    toggleButton.Text = AUTO_BUY_ENABLED and "ON" or "OFF"
+end)
+local vim = game:GetService("VirtualInputManager")
+
+local function sendKey(keyCode, holdTime)
+    holdTime = tonumber(holdTime) or 0.1
+    vim:SendKeyEvent(true, keyCode, false, game)  -- nhấn phím
+    task.wait(holdTime)
+    vim:SendKeyEvent(false, keyCode, false, game) -- thả phím
+end
+
+-- Auto nhấn phím 0 mỗi 10 giây
+spawn(function()
+    while true do
+        sendKey(Enum.KeyCode.Zero)  -- nhấn phím 0, giữ mặc định 0.1 giây
+        task.wait(60)               -- chờ 10 giây trước lần nhấn tiếp theo
+    end
+end)
+
+-- Hàm ESP
+local function createESPwithPrice(part, nameText, price)
+    if price < MIN_PRICE then
+        if part:FindFirstChild("ESP") then part.ESP:Destroy() end
+        return
+    end
+    if part:FindFirstChild("ESP") then
+        part.ESP.BillboardGui.Frame.TextLabel.Text = string.format("%s\n$%d", nameText, price)
+        return
+    end
+
+    local box = Instance.new("BoxHandleAdornment")
+    box.Name = "ESP"
+    box.Adornee = part
+    box.AlwaysOnTop = true
+    box.Size = part.Size + Vector3.new(0.5,0.5,0.5)
+    box.Color3 = price >= MIN_PRICE*2 and Color3.fromRGB(255,215,0) or Color3.fromRGB(0,255,0)
+    box.Transparency = 0.5
+    box.Parent = part
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "BillboardGui"
+    billboard.Adornee = part
+    billboard.Size = UDim2.new(0,100,0,50)
+    billboard.StudsOffset = Vector3.new(0, part.Size.Y + 1, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = box
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1,0,1,0)
+    frame.BackgroundTransparency = 1
+    frame.Parent = billboard
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,0,1,0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255,255,255)
+    label.TextStrokeTransparency = 0
+    label.TextScaled = true
+    label.Font = Enum.Font.SourceSansBold
+    label.Text = string.format("%s\n$%d", nameText, price)
+    label.Parent = frame
+end
+
+-- Hàm parse giá
+local function parsePrice(text)
+    if not text then return 0 end
+    text = string.upper(tostring(text):gsub("%$", ""))
+    local multiplier = 1
+    if text:find("K") then multiplier = 1000 text = text:gsub("K","") end
+    if text:find("M") then multiplier = 1000000 text = text:gsub("M","") end
+    local num = tonumber(text)
+    return num and num * multiplier or 0
+end
+
+-- Nhấn phím E
+local function pressE(holdTime)
+    holdTime = holdTime or 0.1
+    vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(holdTime)
+    vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
+-- Auto-buy + ESP
+spawn(function()
+    while true do
+        MIN_PRICE = tonumber(minPriceBox.Text) or MIN_PRICE
+        AUTO_BUY_DISTANCE = tonumber(autoBuyDistanceBox.Text) or AUTO_BUY_DISTANCE
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            for _, obj in ipairs(Workspace:GetDescendants()) do
+                if obj:IsA("Part") then
+                    local info = obj:FindFirstChild("Info")
+                    local overhead = info and info:FindFirstChild("AnimalOverhead")
+                    if overhead then
+                        local priceObj = overhead:FindFirstChild("Price")
+                        local nameObj = overhead:FindFirstChild("DisplayName")
+                        if priceObj and nameObj then
+                            local priceText = priceObj.Text or tostring(priceObj.Value)
+                            local nameText = nameObj.Text or tostring(nameObj.Value)
+                            local numPrice = parsePrice(priceText)
+                            createESPwithPrice(obj, nameText, numPrice)
+
+                            local distance = (obj.Position - hrp.Position).Magnitude
+                            if AUTO_BUY_ENABLED and numPrice >= MIN_PRICE and distance <= AUTO_BUY_DISTANCE and tick() - lastBuyTime > BUY_COOLDOWN then
+                                pressE(3)
+                                lastBuyTime = tick()
+                                print(string.format("Đã mua pet [%s] giá %d khoảng cách %.2f", nameText, numPrice, distance))
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(AUTO_BUY_INTERVAL)
+    end
+end)
