@@ -1,0 +1,158 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+-- Tạo ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "PlayerListGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Frame chính để chứa tất cả
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 270, 0, 370)
+mainFrame.Position = UDim2.new(0, 20, 0, 100)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BorderSizePixel = 2
+mainFrame.Parent = screenGui
+
+-- Tạo ScrollingFrame
+local frame = Instance.new("ScrollingFrame")
+frame.Name = "PlayerListFrame"
+frame.Size = UDim2.new(1, -20, 1, -80)
+frame.Position = UDim2.new(0, 10, 0, 60)
+frame.CanvasSize = UDim2.new(0, 0, 0, 0)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.BorderSizePixel = 2
+frame.ScrollBarThickness = 8
+frame.Parent = mainFrame
+
+-- Tạo TextLabel mẫu
+local template = Instance.new("TextLabel")
+template.Name = "Template"
+template.Size = UDim2.new(1, -10, 0, 25)
+template.Position = UDim2.new(0, 5, 0, 0)
+template.BackgroundTransparency = 1
+template.TextColor3 = Color3.fromRGB(255, 255, 255)
+template.TextXAlignment = Enum.TextXAlignment.Left
+template.Font = Enum.Font.SourceSans
+template.TextSize = 18
+template.Visible = false
+template.Parent = frame
+
+-- Tạo nút Copy
+local copyButton = Instance.new("TextButton")
+copyButton.Name = "CopyButton"
+copyButton.Size = UDim2.new(1, -20, 0, 30)
+copyButton.Position = UDim2.new(0, 10, 0, 20)
+copyButton.BackgroundColor3 = Color3.fromRGB(60, 120, 200)
+copyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+copyButton.Text = "Copy danh sách người chơi"
+copyButton.Font = Enum.Font.SourceSansBold
+copyButton.TextSize = 18
+copyButton.Parent = mainFrame
+
+-- Nút Toggle ẩn/hiện GUI
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0, 120, 0, 30)
+toggleButton.Position = UDim2.new(0, 20, 0, 60)
+toggleButton.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Text = "Ẩn/Hiện GUI"
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 18
+toggleButton.Parent = screenGui
+
+-- Ẩn/hiện logic
+local visible = true
+toggleButton.MouseButton1Click:Connect(function()
+    visible = not visible
+    mainFrame.Visible = visible
+end)
+
+-- Hàm làm mới danh sách
+local function refreshList()
+    -- Xóa label cũ (trừ Template)
+    for _, child in ipairs(frame:GetChildren()) do
+        if child:IsA("TextLabel") and child.Name ~= "Template" then
+            child:Destroy()
+        end
+    end
+
+    -- Tạo lại danh sách
+    local y = 0
+    for _, plr in ipairs(Players:GetPlayers()) do
+        local item = template:Clone()
+        item.Name = plr.Name
+        item.Text = plr.DisplayName .. " (@" .. plr.Name .. ")"
+        item.Visible = true
+        item.Position = UDim2.new(0, 5, 0, y)
+        item.Parent = frame
+        y = y + item.Size.Y.Offset
+    end
+
+    -- Cập nhật CanvasSize để cuộn
+    frame.CanvasSize = UDim2.new(0, 0, 0, y)
+end
+
+-- Hàm copy danh sách
+local function copyPlayers()
+    local names = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        table.insert(names, plr.DisplayName .. " (@" .. plr.Name .. ")")
+    end
+    local text = table.concat(names, "\n")
+
+    if setclipboard then
+        setclipboard(text)
+        print("Đã copy vào clipboard:\n" .. text)
+    else
+        warn("setclipboard không hỗ trợ trong Studio!")
+    end
+end
+
+-- Gọi lần đầu
+refreshList()
+
+-- Cập nhật khi có người vào/ra
+Players.PlayerAdded:Connect(refreshList)
+Players.PlayerRemoving:Connect(refreshList)
+
+-- Sự kiện bấm nút Copy
+copyButton.MouseButton1Click:Connect(copyPlayers)
+
+-- Kéo thả GUI
+local dragging, dragInput, dragStart, startPos
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
