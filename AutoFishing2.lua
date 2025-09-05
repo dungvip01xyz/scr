@@ -127,7 +127,7 @@ else
     print("Không có Fishing Rod trong hotbar.")
 end
 task.spawn(function()
-    while task.wait(1) do
+    while task.wait(0.1) do
         local character = Workspace:FindFirstChild("Characters"):FindFirstChild(player.Name)
         if character then
             local fishingRod = character:FindFirstChild("Fishing Rod")
@@ -141,6 +141,10 @@ task.spawn(function()
                         releaseMouse()
                         task.wait(1)
                         textLabel.Text = "cất cá"
+                        pressMouse()
+                        task.wait(1)
+                        releaseMouse()
+                        task.wait(1)
                     end
                 end
             end
