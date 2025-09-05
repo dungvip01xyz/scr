@@ -140,7 +140,7 @@ task.spawn(function()
                         task.wait(1)
                         releaseMouse()
                         task.wait(1)
-                        textLabel.Text = "cất lại cá"
+                        textLabel.Text = "cất cá"
                     end
                 end
             end
