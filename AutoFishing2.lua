@@ -181,9 +181,9 @@ task.spawn(function()
                         releaseMouse()
                         task.wait(1)
                     end
-                else
-                    textLabel.Text = "Trang bị cần câu"
-                    sendKey(key, 0.2)
+                -- else
+                --     textLabel.Text = "Trang bị cần câu"
+                --     sendKey(key, 0.2)
                 end
             end
         end
