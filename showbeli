@@ -1,11 +1,7 @@
--- Lấy người chơi cục bộ
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-
--- Tạo GUI hiển thị
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-
 local BeliLabel = Instance.new("TextLabel")
 BeliLabel.Size = UDim2.new(0, 200, 0, 50)
 BeliLabel.Position = UDim2.new(0.5, 0, 0, 10) -- Ở giữa, cách trên 10px
@@ -16,15 +12,9 @@ BeliLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 BeliLabel.TextScaled = true
 BeliLabel.Text = "Beli: 0"
 BeliLabel.Parent = ScreenGui
-
--- Hàm cập nhật khi Beli thay đổi
 local function updateBeli()
 	local beliValue = LocalPlayer:WaitForChild("Data"):WaitForChild("Beli").Value
 	BeliLabel.Text = "Beli: " .. tostring(beliValue)
 end
-
--- Theo dõi sự kiện thay đổi
 LocalPlayer:WaitForChild("Data"):WaitForChild("Beli").Changed:Connect(updateBeli)
-
--- Cập nhật lần đầu
 updateBeli()
