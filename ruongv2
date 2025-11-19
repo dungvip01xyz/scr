@@ -1,0 +1,93 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CollectionService = game:GetService("CollectionService")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local root = character:WaitForChild("HumanoidRootPart")
+local humanoid = character:WaitForChild("Humanoid")
+local speed = 350
+local isFlying = false
+local function flyTo(targetPos)
+    if not root or not humanoid then return end
+    local platform = Instance.new("Part")
+    platform.Transparency = 1
+    platform.Size = Vector3.new(2,1,2)
+    platform.Anchored = true
+    platform.CanCollide = false
+    platform.Material = Enum.Material.Neon
+    platform.Color = Color3.fromRGB(255,255,255)
+    platform.Parent = workspace
+    platform.CFrame = CFrame.new(root.Position.X, root.Position.Y - 3, root.Position.Z)
+    local distance = (targetPos - root.Position).Magnitude
+    local time = distance / speed
+    local tween = TweenService:Create(platform, TweenInfo.new(time, Enum.EasingStyle.Linear), {Position = targetPos})
+    local standTime = 0
+    local requiredTime = 3
+    local connection
+    connection = RunService.RenderStepped:Connect(function(deltaTime)
+        if root and platform then
+            -- di chuyển root theo platform
+            root.CFrame = platform.CFrame * CFrame.new(0,2,0)
+            -- kiểm tra vận tốc ngang
+            local velocity = Vector3.new(root.Velocity.X,0,root.Velocity.Z).Magnitude
+            if velocity < 0.5 then
+                standTime = standTime + deltaTime
+            else
+                standTime = 0
+            end
+            if standTime >= requiredTime and humanoid.Health > 0 then
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                standTime = 0
+            end
+        else
+            connection:Disconnect()
+        end
+    end)
+
+    tween:Play()
+    tween.Completed:Wait()
+    connection:Disconnect()
+    platform:Destroy()
+end
+local function ruong()
+    while wait() do
+        local char = player.Character or player.CharacterAdded:Wait()
+        local pos = char:GetPivot().Position
+        local chests = game:GetService("CollectionService"):GetTagged("_ChestTagged")
+        local minDist, closest = math.huge, nil
+        for i = 1, #chests do
+            local chest = chests[i]
+            local dist = (chest:GetPivot().Position - pos).Magnitude
+            if not chest:GetAttribute("IsDisabled") and dist < minDist then
+                minDist, closest = dist, chest
+            end
+        end
+        if closest then
+            flyTo(closest:GetPivot().Position)
+        end
+    end
+end
+
+function checkBeli(time)
+    while true do
+        local beliBefore = localPlayer.Data.Beli.Value -- Lấy giá trị Beli ban đầu
+        local startTime = tick() -- Lấy thời gian bắt đầu
+        while tick() - startTime < time do
+            local remainingTime = time - (tick() - startTime) -- Tính thời gian còn lại
+            print("Thời gian còn lại: " .. math.ceil(remainingTime) .. " giây") -- Làm tròn lên
+            wait(1)
+        end
+        local beliAfter = localPlayer.Data.Beli.Value 
+        if beliAfter > beliBefore then
+            print("Beli đã tăng! 🤑")
+        elseif beliAfter < beliBefore then
+            print("Beli đã giảm! 😢")
+        else
+            print("Beli không thay đổi. 😐")
+            task.spawn(ruong)
+        end
+    end
+end
+task.spawn(ruong)
+task.spawn(checkBeli, 60)
