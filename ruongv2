@@ -1,50 +1,40 @@
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local CollectionService = game:GetService("CollectionService")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local root = character:WaitForChild("HumanoidRootPart")
-local humanoid = character:WaitForChild("Humanoid")
 local speed = 350
-local isFlying = false
+_G.AutoCollectChest = true
+local humanoid = character:WaitForChild("Humanoid")
+local standTime = 0
+local requiredTime = 10 -- 10 giây
 local function flyTo(targetPos)
-    if not root or not humanoid then return end
+    local human = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if human then
+        human:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
     local platform = Instance.new("Part")
     platform.Transparency = 1
-    platform.Size = Vector3.new(2,1,2)
+    platform.Size = Vector3.new(8, 1, 8)
     platform.Anchored = true
     platform.CanCollide = false
     platform.Material = Enum.Material.Neon
-    platform.Color = Color3.fromRGB(255,255,255)
+    platform.Color = Color3.fromRGB(255, 255, 255)
     platform.Parent = workspace
-    platform.CFrame = CFrame.new(root.Position.X, root.Position.Y - 3, root.Position.Z)
-    local distance = (targetPos - root.Position).Magnitude
+    local startPos = root.Position
+    platform.CFrame = CFrame.new(startPos.X, startPos.Y - 3, startPos.Z)
+    local distance = (targetPos - startPos).Magnitude
     local time = distance / speed
     local tween = TweenService:Create(platform, TweenInfo.new(time, Enum.EasingStyle.Linear), {Position = targetPos})
-    local standTime = 0
-    local requiredTime = 3
     local connection
-    connection = RunService.RenderStepped:Connect(function(deltaTime)
+    connection = RunService.RenderStepped:Connect(function()
         if root and platform then
-            -- di chuyển root theo platform
-            root.CFrame = platform.CFrame * CFrame.new(0,2,0)
-            -- kiểm tra vận tốc ngang
-            local velocity = Vector3.new(root.Velocity.X,0,root.Velocity.Z).Magnitude
-            if velocity < 0.5 then
-                standTime = standTime + deltaTime
-            else
-                standTime = 0
-            end
-            if standTime >= requiredTime and humanoid.Health > 0 then
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                standTime = 0
-            end
+            root.CFrame = platform.CFrame + Vector3.new(0, 3, 0)
         else
             connection:Disconnect()
         end
     end)
-
     tween:Play()
     tween.Completed:Wait()
     connection:Disconnect()
@@ -68,7 +58,6 @@ local function ruong()
         end
     end
 end
-
 function checkBeli(time)
     while true do
         local beliBefore = localPlayer.Data.Beli.Value -- Lấy giá trị Beli ban đầu
