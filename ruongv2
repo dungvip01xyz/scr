@@ -8,35 +8,41 @@ local speed = 350
 _G.AutoCollectChest = true
 local humanoid = character:WaitForChild("Humanoid")
 local function flyTo(targetPos)
+    if not root then return end
+
     local human = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
     if human then
+        human.PlatformStand = true -- Giúp không bị animation kéo lại
         human:ChangeState(Enum.HumanoidStateType.Jumping)
     end
     local platform = Instance.new("Part")
-    platform.Transparency = 1
-    platform.Size = Vector3.new(8, 1, 8)
+    platform.Size = Vector3.new(1, 1, 1)
+    platform.Transparency = 0
     platform.Anchored = true
     platform.CanCollide = false
-    platform.Material = Enum.Material.Neon
-    platform.Color = Color3.fromRGB(255, 255, 255)
     platform.Parent = workspace
     local startPos = root.Position
     platform.CFrame = CFrame.new(startPos.X, startPos.Y - 3, startPos.Z)
     local distance = (targetPos - startPos).Magnitude
     local time = distance / speed
-    local tween = TweenService:Create(platform, TweenInfo.new(time, Enum.EasingStyle.Linear), {Position = targetPos})
-    local connection
+    local tween = TweenService:Create(
+        platform,
+        TweenInfo.new(time, Enum.EasingStyle.Linear),
+        {CFrame = CFrame.new(targetPos.X, targetPos.Y - 3, targetPos.Z)}
+    )
+    local connection = nil
     connection = RunService.RenderStepped:Connect(function()
-        if root and platform then
-            root.CFrame = platform.CFrame + Vector3.new(0, 3, 0)
-        else
+        if not platform or not root then
             connection:Disconnect()
+            return
         end
+        root.CFrame = platform.CFrame + Vector3.new(0, 3, 0)
     end)
     tween:Play()
     tween.Completed:Wait()
-    connection:Disconnect()
+    if connection then connection:Disconnect() end
     platform:Destroy()
+    if human then human.PlatformStand = false end
 end
 local function ruong()
     while wait() do
@@ -56,25 +62,4 @@ local function ruong()
         end
     end
 end
-function checkBeli(time)
-    while true do
-        local beliBefore = localPlayer.Data.Beli.Value -- Lấy giá trị Beli ban đầu
-        local startTime = tick() -- Lấy thời gian bắt đầu
-        while tick() - startTime < time do
-            local remainingTime = time - (tick() - startTime) -- Tính thời gian còn lại
-            print("Thời gian còn lại: " .. math.ceil(remainingTime) .. " giây") -- Làm tròn lên
-            wait(1)
-        end
-        local beliAfter = localPlayer.Data.Beli.Value 
-        if beliAfter > beliBefore then
-            print("Beli đã tăng! 🤑")
-        elseif beliAfter < beliBefore then
-            print("Beli đã giảm! 😢")
-        else
-            print("Beli không thay đổi. 😐")
-            task.spawn(ruong)
-        end
-    end
-end
 task.spawn(ruong)
-task.spawn(checkBeli, 60)
