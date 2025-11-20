@@ -7,8 +7,6 @@ local root = character:WaitForChild("HumanoidRootPart")
 local speed = 350
 _G.AutoCollectChest = true
 local humanoid = character:WaitForChild("Humanoid")
-local standTime = 0
-local requiredTime = 10 -- 10 giây
 local function flyTo(targetPos)
     local human = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
     if human then
