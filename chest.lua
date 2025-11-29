@@ -1,9 +1,11 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/dungvip01xyz/scr/refs/heads/main/showbeli"))()
 _G.AutoCollectChest = true
+_G.EnableFootPlate = true
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local CollectionService = game:GetService("CollectionService")
-local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local root = character:WaitForChild("HumanoidRootPart")
 function PreventAFK()
     game:GetService("Players").LocalPlayer.Idled:connect(function()
         print("|COKKA DEBUG| AFK detected, prevented +1")
@@ -13,7 +15,33 @@ function PreventAFK()
         VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
     end)
 end
+PreventAFK()
+task.spawn(function()
+	while task.wait(0.3) do
+		if _G.EnableFootPlate and root and root.Parent then
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(6, 1, 6)
+			part.Anchored = true
+			part.CanCollide = true -- ✅ Có thể đứng được
+			part.Material = Enum.Material.ForceField
+			part.Color = Color3.fromRGB(0, 255, 0)
+			part.Transparency = 0.2
+			part.CFrame = root.CFrame * CFrame.new(0, -4, 0)
+			part.Parent = workspace
 
+			-- ✨ Mờ dần và biến mất
+			task.spawn(function()
+				for i = 1, 20 do
+					part.Transparency = part.Transparency + 0.04
+					task.wait(0.1)
+				end
+				part:Destroy()
+			end)
+		end
+	end
+end)
+local LocalPlayer = Players.LocalPlayer
+local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 function Tween2(v204)
     local v205 = (v204.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude;
     local v206 = 350;
@@ -31,14 +59,13 @@ function Tween2(v204)
     _G.Clip2 = true;
     wait(v205 / v206);
     _G.Clip2 = false;
-    wait(0.2)
+    wait(1)
     local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if human then
         human:ChangeState(Enum.HumanoidStateType.Jumping)
     end
-    wait(0.2)
 end
-function AutoCollectChest()
+spawn(function()
     while wait() do
         if _G.AutoCollectChest then
             local v673 = game:GetService("Players");
@@ -62,6 +89,4 @@ function AutoCollectChest()
             end
         end
     end
-end
-task.spawn(PreventAFK)
-task.spawn(AutoCollectChest)
+end);
