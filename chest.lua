@@ -6,6 +6,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local root = character:WaitForChild("HumanoidRootPart")
+local VirtualUser = game:GetService("VirtualUser")
 task.spawn(function()
 	while task.wait(0.3) do
 		if _G.EnableFootPlate and root and root.Parent then
@@ -33,10 +34,24 @@ end)
 local LocalPlayer = Players.LocalPlayer
 local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 player.Idled:Connect(function()
-    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-    task.wait(1)
-    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-    print("Anti-AFK: Đã ngăn AFK.")
+    print("[ANTI-AFK] Detected idle, preventing...")
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+task.spawn(function()
+    while true do
+        task.wait(300) -- 300 giây
+
+        print("[ANTI-AFK] Auto Move + Click")
+
+        -- Click chuột phải
+        VirtualUser:ClickButton2(Vector2.new())
+
+        -- Di chuột nhẹ (5px → 10px)
+        VirtualUser:MoveMouse(Vector2.new(5, 10))
+        task.wait(0.1)
+        VirtualUser:MoveMouse(Vector2.new(10, 5))
+    end
 end)
 function Tween2(v204)
     local v205 = (v204.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude;
