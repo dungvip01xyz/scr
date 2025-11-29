@@ -1,43 +1,41 @@
--- Lấy người chơi cục bộ
-local player = game:GetService("Players").LocalPlayer
-local beli = player:WaitForChild("Data"):WaitForChild("Beli")
-
--- Hàm định dạng số có dấu chấm (VD: 1234567 -> 1.234.567)
-local function formatNumber(n)
-	local str = tostring(n)
-	local formatted = str
-	while true do
-		formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", "%1.%2")
-		if k == 0 then break end
-	end
-	return formatted
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Data = LocalPlayer:WaitForChild("Data", 10)
+if not Data then
+    warn("Không tìm thấy Data!")
+    return
+end
+local BeliValue = Data:WaitForChild("Beli", 10)
+if not BeliValue then
+    warn("Không tìm thấy Beli!")
+    return
+end
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+local BeliLabel = Instance.new("TextLabel")
+BeliLabel.Size = UDim2.new(0, 230, 0, 45)
+BeliLabel.AnchorPoint = Vector2.new(1, 1)       
+BeliLabel.Position = UDim2.new(0, 680, 0, 0) 
+BeliLabel.BackgroundTransparency = 0.2
+BeliLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BeliLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+BeliLabel.Font = Enum.Font.GothamBold
+BeliLabel.TextScaled = true
+BeliLabel.BorderSizePixel = 0
+BeliLabel.Parent = ScreenGui
+local function formatNumber(num)
+    local formatted = tostring(num)
+    while true do
+        local new, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1.%2")
+        formatted = new
+        if k == 0 then break end
+    end
+    return formatted
 end
 
--- Tạo GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player:WaitForChild("PlayerGui")
-
-local beliLabel = Instance.new("TextLabel")
-beliLabel.Size = UDim2.new(0, 200, 0, 40)
-beliLabel.Position = UDim2.new(0.5, 0, 0, 10) -- Giữa trên màn hình
-beliLabel.AnchorPoint = Vector2.new(0.5, 0)
-beliLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-beliLabel.BackgroundTransparency = 0.3
-beliLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-beliLabel.TextScaled = true
-beliLabel.Font = Enum.Font.SourceSansBold
-beliLabel.Parent = screenGui
-
--- Hàm cập nhật GUI
 local function updateBeli()
-	beliLabel.Text = "Beli: " .. formatNumber(beli.Value)
+    BeliLabel.Text = "Beli: " .. formatNumber(BeliValue.Value)
 end
-
--- Cập nhật ban đầu
+BeliValue.Changed:Connect(updateBeli)
 updateBeli()
-
--- Khi Beli thay đổi
-beli.Changed:Connect(function()
-	updateBeli()
-	print("Beli hiện tại:", formatNumber(beli.Value))
-end)
