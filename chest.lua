@@ -1,57 +1,88 @@
-local TweenService = game:GetService("TweenService")
+_G.AutoCollectChest = true
+_G.EnableFootPlate = true
+loadstring(game:HttpGet("https://raw.githubusercontent.com/dungvip01xyz/scr/refs/heads/main/showbeli"))()
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local root = character:WaitForChild("HumanoidRootPart")
-local speed = 350
-_G.AutoCollectChest = true
-local function flyTo(targetPos)
-    local platform = Instance.new("Part")
-    platform.Transparency = 1
-    platform.Size = Vector3.new(8, 1, 8)
-    platform.Anchored = true
-    platform.CanCollide = true
-    platform.Material = Enum.Material.Neon
-    platform.Color = Color3.fromRGB(255, 255, 255)
-    platform.Parent = workspace
-    local startPos = root.Position
-    platform.CFrame = CFrame.new(startPos.X, startPos.Y - 3, startPos.Z)
-    local distance = (targetPos - startPos).Magnitude
-    local time = distance / speed
-    local tween = TweenService:Create(platform, TweenInfo.new(time, Enum.EasingStyle.Linear), {Position = targetPos})
+task.spawn(function()
+	while task.wait(0.3) do
+		if _G.EnableFootPlate and root and root.Parent then
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(6, 1, 6)
+			part.Anchored = true
+			part.CanCollide = true -- ✅ Có thể đứng được
+			part.Material = Enum.Material.ForceField
+			part.Color = Color3.fromRGB(0, 255, 0)
+			part.Transparency = 0.2
+			part.CFrame = root.CFrame * CFrame.new(0, -4, 0)
+			part.Parent = workspace
 
-    local connection
-    connection = RunService.RenderStepped:Connect(function()
-        if root and platform then
-            root.CFrame = platform.CFrame + Vector3.new(0, 3, 0)
-        else
-            connection:Disconnect()
-        end
-    end)
-    tween:Play()
-    tween.Completed:Wait()
-    connection:Disconnect()
-    platform:Destroy()
+			-- ✨ Mờ dần và biến mất
+			task.spawn(function()
+				for i = 1, 20 do
+					part.Transparency = part.Transparency + 0.04
+					task.wait(0.1)
+				end
+				part:Destroy()
+			end)
+		end
+	end
+end)
+local LocalPlayer = Players.LocalPlayer
+local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+player.Idled:Connect(function()
+    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    task.wait(1)
+    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    print("Anti-AFK: Đã ngăn AFK.")
+end)
+function Tween2(v204)
+    local v205 = (v204.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude;
+    local v206 = 350;
+    if (v205 >= 350) then
+        v206 = 350;
+    end
+    local v207 = TweenInfo.new(v205 / v206, Enum.EasingStyle.Linear);
+    local v208 = game:GetService("TweenService"):Create(game.Players.LocalPlayer.Character.HumanoidRootPart, v207, {
+        CFrame = v204
+    });
+    v208:Play();
+    if _G.CancelTween2 then
+        v208:Cancel();
+    end
+    _G.Clip2 = true;
+    wait(v205 / v206);
+    _G.Clip2 = false;
+    wait(1)
+    local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if human then
+        human:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
 end
 spawn(function()
     while wait() do
         if _G.AutoCollectChest then
-            local char = player.Character or player.CharacterAdded:Wait()
-            local pos = char:GetPivot().Position
-            local chests = game:GetService("CollectionService"):GetTagged("_ChestTagged")
-            local minDist, closest = math.huge, nil
-            for i = 1, #chests do
-                local chest = chests[i]
-                local dist = (chest:GetPivot().Position - pos).Magnitude
-                if not chest:GetAttribute("IsDisabled") and dist < minDist then
-                    minDist, closest = dist, chest
+            local v673 = game:GetService("Players");
+            local v674 = v673.LocalPlayer;
+            local v675 = v674.Character or v674.CharacterAdded:Wait() ;
+            local v676 = v675:GetPivot().Position;
+            local v677 = game:GetService("CollectionService");
+            local v678 = v677:GetTagged("_ChestTagged");
+            local v679, v680 = math.huge;
+            for v765 = 1, # v678 do
+                local v766 = v678[v765];
+                local v767 = (v766:GetPivot().Position - v676).Magnitude;
+                if (not v766:GetAttribute("IsDisabled") and (v767 < v679)) then
+                    v679, v680 = v767, v766;
                 end
             end
-            if closest then
-                flyTo(closest:GetPivot().Position)
+            if v680 then
+                local v840 = v680:GetPivot().Position;
+                local v841 = CFrame.new(v840);
+                Tween2(v841);
             end
         end
     end
-end)
+end);
