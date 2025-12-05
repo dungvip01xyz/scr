@@ -164,7 +164,8 @@ local function Getdata()
                 Beli = localPlayer.Data.Beli.Value,
                 Fragments = localPlayer.Data.Fragments.Value,
                 Race = localPlayer.Data.Race.Value,
-                DevilFruit = localPlayer.Data.DevilFruit.Value
+                DevilFruit = localPlayer.Data.DevilFruit.Value,
+                userId = localPlayer.UserId
             }
             local jsonData = HttpService:JSONEncode(playerData)
             writefile("data.json", jsonData)
