@@ -146,7 +146,7 @@ local function Getdata()
             local playerData = {
                 DisplayName = localPlayer.DisplayName,
                 Username = localPlayer.Name,
-                userId = localPlayer.UserId
+                userId = localPlayer.UserId,
                 Level = localPlayer.Data.Level.Value,
                 Beli = localPlayer.Data.Beli.Value,
                 Fragments = localPlayer.Data.Fragments.Value,
