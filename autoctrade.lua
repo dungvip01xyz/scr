@@ -10,6 +10,7 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local fruitName = getgenv().fruitName
 local Lenhtrade = getgenv().Lenh
 local Lenhdongy = getgenv().dongy 
+local player = Players.LocalPlayer
 if player.PlayerGui:FindFirstChild("AutoTradeGUI") then
     player.PlayerGui.AutoTradeGUI:Destroy()
 end
