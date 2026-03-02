@@ -8,6 +8,8 @@ local count = 0
 local TextChatService = game:GetService("TextChatService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local fruitName = getgenv().fruitName
+local Lenhtrade = getgenv().Lenh
+local Lenhdongy = getgenv().dongy 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local textLabel = Instance.new("TextLabel")
@@ -47,7 +49,7 @@ end
 TextChatService.OnIncomingMessage = function(message)
     if not message.Text then return end
 
-    if message.Text == "/trade" then
+    if message.Text == Lenhtrade then
         
         for _, obj in pairs(Dressrosa:GetDescendants()) do
             if obj:IsA("Model") and obj.Name == "TradeTable" then
@@ -82,7 +84,7 @@ TextChatService.OnIncomingMessage = function(message)
         end
     end
 
-    if message.Text == "/dongy" then
+    if message.Text == Lenhdongy then
         ReplicatedStorage.Remotes.TradeFunction:InvokeServer("accept")
     end
 end
