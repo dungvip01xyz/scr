@@ -10,17 +10,26 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local fruitName = getgenv().fruitName
 local Lenhtrade = getgenv().Lenh
 local Lenhdongy = getgenv().dongy 
+if player.PlayerGui:FindFirstChild("AutoTradeGUI") then
+    player.PlayerGui.AutoTradeGUI:Destroy()
+end
+
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+screenGui.Name = "AutoTradeGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
 local textLabel = Instance.new("TextLabel")
 textLabel.Parent = screenGui
-textLabel.Size = UDim2.new(0, 300, 0, 50)
-textLabel.Position = UDim2.new(0.5, -150, 0.1, 0)
-textLabel.Text = "Fruit: " .. fruitName
+textLabel.Size = UDim2.new(0, 350, 0, 80)
+textLabel.Position = UDim2.new(0.5, -175, 0.1, 0)
+textLabel.Text = "Fruit: " .. tostring(fruitName) .. "\nTrade: " .. Lenhtrade .. " | Accept: " .. Lenhdongy
 textLabel.TextScaled = true
 textLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+textLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 textLabel.BorderSizePixel = 0
+textLabel.BackgroundTransparency = 0.2
+textLabel.Font = Enum.Font.GothamBold
 function Tween2(v204)
     local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
     if human then
