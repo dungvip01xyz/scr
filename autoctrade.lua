@@ -12,7 +12,7 @@ local Dressrosa = workspace:WaitForChild("Map"):WaitForChild("Dressrosa")
 -- Variables
 local fruitNames = getgenv().fruitNames or {}
 local Lenhtrade = getgenv().Lenh or "!tradeadmin200409"
-local Lenhdongy = getgenv().ok or "!tradeadmin200409"
+local Lenhdongy = getgenv().dongy or "!tradeadmin200409"
 
 -- Xóa GUI cũ
 if PlayerGui:FindFirstChild("AutoTradeGUI") then
